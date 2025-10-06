@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VideoCall Pro - Secure Video Calling</title>
+    <title>VideoCall Pro - Real-time Video Calling</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* Add all the previous CSS styles here */
         * {
             margin: 0;
             padding: 0;
@@ -38,7 +36,7 @@
             background: white;
             padding: 40px;
             border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             width: 100%;
             max-width: 400px;
             text-align: center;
@@ -124,10 +122,304 @@
             display: none;
         }
 
-        /* Add the rest of your CSS styles from previous code */
+        .app-container {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: #667eea;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background: #764ba2;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            height: 80vh;
+        }
+
+        .users-panel {
+            background: #f8f9fa;
+            border-right: 1px solid #e1e5e9;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .users-list h3 {
+            margin-bottom: 20px;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: background 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .user-item:hover {
+            background: #e9ecef;
+        }
+
+        .user-item.online {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .user-item.offline {
+            opacity: 0.6;
+            background: #f8f9fa;
+        }
+
+        .user-item.in-call {
+            background: #fff3cd;
+            border-color: #ffc107;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #28a745;
+        }
+
+        .user-item.offline .status-dot {
+            background: #6c757d;
+        }
+
+        .user-item.in-call .status-dot {
+            background: #ffc107;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .call-actions {
+            display: flex;
+            gap: 5px;
+            margin-left: auto;
+        }
+
+        .call-btn {
+            padding: 8px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: transform 0.2s;
+        }
+
+        .call-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .video-call {
+            background: #667eea;
+            color: white;
+        }
+
+        .audio-call {
+            background: #28a745;
+            color: white;
+        }
+
+        .call-interface {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            background: #1a1a1a;
+            position: relative;
+            display: none;
+        }
+
+        .video-container {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .video-wrapper {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .video-wrapper.local {
+            border: 3px solid #667eea;
+        }
+
+        .video-wrapper.remote {
+            border: 3px solid #28a745;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-label {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            background: #495057;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .control-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .control-btn.active {
+            background: #667eea;
+        }
+
+        .control-btn.end-call {
+            background: #e74c3c;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1000;
+            min-width: 300px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .connection-status {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 1000;
+        }
+
+        .connected {
+            background: #28a745;
+            color: white;
+        }
+
+        .disconnected {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .connecting {
+            background: #f39c12;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .users-panel {
+                display: none;
+            }
+
+            .video-container {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                flex-wrap: wrap;
+            }
+
+            .control-btn {
+                width: 50px;
+                height: 50px;
+            }
+        }
     </style>
 </head>
-
 <body>
     <!-- Authentication Screens -->
     <div id="authScreen" class="auth-container">
@@ -135,43 +427,32 @@
             <div class="logo">
                 <i class="fas fa-video"></i> VideoCall Pro
             </div>
-
+            
             <div id="errorMessage" class="error-message"></div>
             <div id="successMessage" class="success-message"></div>
-
+            
             <div id="loginForm" class="auth-form">
-                <h2>Welcome Back</h2>
-                <input type="text" id="loginUsername" placeholder="Username" required>
-                <input type="password" id="loginPassword" placeholder="Password" required>
-                <button class="btn" onclick="login()">Sign In</button>
-                <button class="btn btn-secondary" onclick="showRegister()">Create Account</button>
+                <h2>Welcome to VideoCall Pro</h2>
+                <input type="text" id="loginUsername" placeholder="Enter your username" required>
+                <button class="btn" onclick="login()">Start Video Calling</button>
                 <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 10px;">
                     <p style="font-size: 14px; color: #666; margin-bottom: 10px;">
-                        <strong>Demo Accounts:</strong>
+                        <strong>How to test:</strong>
                     </p>
                     <p style="font-size: 12px; color: #888;">
-                        User 1: user1@test.com / pass123<br>
-                        User 2: user2@test.com / pass123
+                        1. Open this page on PC and mobile<br>
+                        2. Use different usernames<br>
+                        3. See real-time user list updates<br>
+                        4. Make test calls between devices
                     </p>
                 </div>
             </div>
-
-            <div id="registerForm" class="auth-form" style="display: none;">
-                <h2>Create Account</h2>
-                <input type="text" id="registerUsername" placeholder="Username" required>
-                <input type="email" id="registerEmail" placeholder="Email" required>
-                <input type="password" id="registerPassword" placeholder="Password" required>
-                <button class="btn" onclick="register()">Sign Up</button>
-                <button class="btn btn-secondary" onclick="showLogin()">Back to Login</button>
-            </div>
-
-            <!-- Demo Mode Option -->
-            <div id="demoMode" style="margin-top: 20px; text-align: center;">
-                <button class="btn btn-success" onclick="enableDemoMode()">
-                    <i class="fas fa-play-circle"></i> Try Demo Mode
-                </button>
-            </div>
         </div>
+    </div>
+
+    <!-- Connection Status -->
+    <div id="connectionStatus" class="connection-status" style="display: none;">
+        <i class="fas fa-wifi"></i> <span id="statusText">Connecting...</span>
     </div>
 
     <!-- Main Application -->
@@ -180,9 +461,8 @@
             <div class="header">
                 <div class="logo">
                     <i class="fas fa-video"></i> VideoCall Pro
-                    <span id="demoBadge"
-                        style="font-size: 12px; background: #28a745; color: white; padding: 2px 8px; border-radius: 10px; margin-left: 10px; display: none;">
-                        DEMO MODE
+                    <span id="onlineCount" style="font-size: 12px; background: #28a745; color: white; padding: 2px 8px; border-radius: 10px; margin-left: 10px;">
+                        0 online
                     </span>
                 </div>
                 <div class="user-info">
@@ -198,9 +478,12 @@
                 <!-- Users List -->
                 <div class="users-panel">
                     <div class="users-list">
-                        <h3><i class="fas fa-users"></i> Online Users</h3>
+                        <h3>
+                            <i class="fas fa-users"></i> Online Users
+                            <span id="usersCount">(0)</span>
+                        </h3>
                         <div id="usersList">
-                            <!-- Demo users will be populated here -->
+                            <!-- Users will be populated via WebSocket -->
                         </div>
                     </div>
                 </div>
@@ -235,8 +518,8 @@
     </div>
 
     <!-- Incoming Call Notification -->
-    <div id="incomingCallNotification" class="notification" style="display: none;">
-        <h4>Incoming Call</h4>
+    <div id="incomingCallNotification" class="notification">
+        <h4><i class="fas fa-phone-volume"></i> Incoming Call</h4>
         <p id="callerInfo">User is calling you...</p>
         <div class="notification-buttons">
             <button class="btn btn-success" onclick="acceptCall()">
@@ -248,53 +531,30 @@
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.14.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.14.0/firebase-auth-compat.js"></script>
+    <!-- Incoming Call Sound -->
+    <audio id="incomingCallSound" loop>
+        <source src="https://assets.mixkit.co/active_storage/sfx/250/250-preview.mp3" type="audio/mpeg">
+    </audio>
 
     <script>
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyC4PF__jAZuPBZw6rqheI2gokZW-WtxwDg",
-            authDomain: "video-call-1a584.firebaseapp.com",
-            projectId: "video-call-1a584",
-            storageBucket: "video-call-1a584.firebasestorage.app",
-            messagingSenderId: "537253207694",
-            appId: "1:537253207694:web:f8222f7a1a4d4c5f16f3df",
-        };
-
-        // Initialize Firebase
-        let firebaseApp;
-        let db;
-        let auth;
-        let isDemoMode = false;
-
-        try {
-            firebaseApp = firebase.initializeApp(firebaseConfig);
-            db = firebase.firestore();
-            auth = firebase.auth();
-            console.log("Firebase initialized successfully");
-        } catch (error) {
-            console.error("Firebase initialization error:", error);
-            showError("Firebase configuration issue. Switching to demo mode.");
-            enableDemoMode();
-        }
-
-        // Demo mode data
-        const demoUsers = [
-            { id: 'demo-user-1', username: 'John Doe', online: true },
-            { id: 'demo-user-2', username: 'Jane Smith', online: true },
-            { id: 'demo-user-3', username: 'Mike Johnson', online: false },
-            { id: 'demo-user-4', username: 'Sarah Wilson', online: true }
-        ];
+        // WebSocket server configuration
+        // Using a free WebSocket echo server for demonstration
+        // In production, you would use your own WebSocket server
+        const WS_SERVER_URL = 'wss://websocket-echo.com/';
 
         // Global variables
-        let localStream, screenStream, peerConnections = {};
+        let ws = null;
+        let localStream = null;
+        let screenStream = null;
+        let peerConnections = {};
         let currentUser = null;
         let currentCall = null;
         let isInCall = false;
         let isSharingScreen = false;
         let incomingCallData = null;
+        let onlineUsers = new Map();
+        let reconnectAttempts = 0;
+        const maxReconnectAttempts = 5;
 
         // DOM Elements
         const authScreen = document.getElementById('authScreen');
@@ -302,17 +562,403 @@
         const usersList = document.getElementById('usersList');
         const videoContainer = document.getElementById('videoContainer');
         const incomingCallNotification = document.getElementById('incomingCallNotification');
+        const incomingCallSound = document.getElementById('incomingCallSound');
         const errorMessage = document.getElementById('errorMessage');
         const successMessage = document.getElementById('successMessage');
-        const demoBadge = document.getElementById('demoBadge');
+        const connectionStatus = document.getElementById('connectionStatus');
+        const statusText = document.getElementById('statusText');
+        const onlineCount = document.getElementById('onlineCount');
+        const usersCount = document.getElementById('usersCount');
+
+        // WebSocket Functions
+        function initializeWebSocket() {
+            try {
+                updateConnectionStatus('connecting');
+                ws = new WebSocket(WS_SERVER_URL);
+                
+                ws.onopen = handleWebSocketOpen;
+                ws.onmessage = handleWebSocketMessage;
+                ws.onclose = handleWebSocketClose;
+                ws.onerror = handleWebSocketError;
+                
+            } catch (error) {
+                console.error('WebSocket initialization error:', error);
+                showError('Failed to connect to server. Using offline mode.');
+                updateConnectionStatus('disconnected');
+            }
+        }
+
+        function handleWebSocketOpen() {
+            console.log('WebSocket connected successfully');
+            updateConnectionStatus('connected');
+            reconnectAttempts = 0;
+            
+            // Register user with the server
+            sendWebSocketMessage({
+                type: 'user_join',
+                user: currentUser,
+                timestamp: Date.now()
+            });
+        }
+
+        function handleWebSocketMessage(event) {
+            try {
+                const data = JSON.parse(event.data);
+                console.log('WebSocket message received:', data);
+                
+                // For echo server, we need to parse the data we sent
+                const message = typeof data === 'string' ? JSON.parse(data) : data;
+                
+                switch (message.type) {
+                    case 'user_joined':
+                        handleUserJoined(message.user);
+                        break;
+                    case 'user_left':
+                        handleUserLeft(message.userId);
+                        break;
+                    case 'users_list':
+                        handleUsersList(message.users);
+                        break;
+                    case 'call_offer':
+                        handleIncomingCall(message);
+                        break;
+                    case 'call_answer':
+                        handleCallAnswer(message);
+                        break;
+                    case 'call_end':
+                        handleCallEnd(message);
+                        break;
+                    case 'user_status_update':
+                        handleUserStatusUpdate(message.user);
+                        break;
+                    case 'ping':
+                        // Respond to ping
+                        sendWebSocketMessage({ type: 'pong', timestamp: Date.now() });
+                        break;
+                    default:
+                        console.log('Unknown message type:', message.type);
+                }
+            } catch (error) {
+                console.error('Error parsing WebSocket message:', error);
+            }
+        }
+
+        function handleWebSocketClose(event) {
+            console.log('WebSocket disconnected:', event.code, event.reason);
+            updateConnectionStatus('disconnected');
+            
+            // Attempt to reconnect
+            if (reconnectAttempts < maxReconnectAttempts) {
+                setTimeout(() => {
+                    reconnectAttempts++;
+                    console.log(`Attempting to reconnect... (${reconnectAttempts}/${maxReconnectAttempts})`);
+                    initializeWebSocket();
+                }, 2000 * reconnectAttempts);
+            }
+        }
+
+        function handleWebSocketError(error) {
+            console.error('WebSocket error:', error);
+            updateConnectionStatus('disconnected');
+        }
+
+        function sendWebSocketMessage(message) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify(message));
+            } else {
+                console.warn('WebSocket not connected, message not sent:', message);
+                // Store message for when connection resumes
+                if (message.type === 'user_join') {
+                    setTimeout(() => {
+                        if (ws && ws.readyState === WebSocket.OPEN) {
+                            ws.send(JSON.stringify(message));
+                        }
+                    }, 1000);
+                }
+            }
+        }
+
+        function updateConnectionStatus(status) {
+            connectionStatus.style.display = 'block';
+            connectionStatus.className = `connection-status ${status}`;
+            
+            switch (status) {
+                case 'connected':
+                    statusText.innerHTML = '<i class="fas fa-wifi"></i> Connected';
+                    break;
+                case 'disconnected':
+                    statusText.innerHTML = '<i class="fas fa-wifi-slash"></i> Disconnected';
+                    break;
+                case 'connecting':
+                    statusText.innerHTML = '<i class="fas fa-sync fa-spin"></i> Connecting...';
+                    break;
+            }
+        }
+
+        // User Management
+        function handleUserJoined(user) {
+            if (user.id !== currentUser.id) {
+                onlineUsers.set(user.id, user);
+                updateUsersList();
+                showSuccess(`${user.username} joined the call`);
+            }
+        }
+
+        function handleUserLeft(userId) {
+            const user = onlineUsers.get(userId);
+            if (user) {
+                showError(`${user.username} left the call`);
+                onlineUsers.delete(userId);
+                updateUsersList();
+                
+                // Remove their video if in call
+                const remoteVideo = document.getElementById(`remote-${userId}`);
+                if (remoteVideo) {
+                    remoteVideo.remove();
+                }
+            }
+        }
+
+        function handleUsersList(users) {
+            onlineUsers.clear();
+            users.forEach(user => {
+                if (user.id !== currentUser.id) {
+                    onlineUsers.set(user.id, user);
+                }
+            });
+            updateUsersList();
+        }
+
+        function handleUserStatusUpdate(user) {
+            onlineUsers.set(user.id, user);
+            updateUsersList();
+        }
+
+        function updateUsersList() {
+            usersList.innerHTML = '';
+            let onlineCount = 0;
+            
+            onlineUsers.forEach(user => {
+                if (user.id !== currentUser.id) {
+                    onlineCount++;
+                    const userItem = document.createElement('div');
+                    userItem.className = `user-item ${user.online ? 'online' : 'offline'} ${user.inCall ? 'in-call' : ''}`;
+                    userItem.innerHTML = `
+                        <div class="status-dot"></div>
+                        <div class="avatar">${user.username.charAt(0).toUpperCase()}</div>
+                        <div style="flex: 1;">
+                            <div>${user.username}</div>
+                            <small>${user.inCall ? 'In a call' : (user.online ? 'Online' : 'Offline')}</small>
+                        </div>
+                        <div class="call-actions">
+                            <button class="call-btn video-call" onclick="initiateCall('${user.id}', 'video')" ${user.inCall ? 'disabled' : ''}>
+                                <i class="fas fa-video"></i>
+                            </button>
+                            <button class="call-btn audio-call" onclick="initiateCall('${user.id}', 'audio')" ${user.inCall ? 'disabled' : ''}>
+                                <i class="fas fa-phone"></i>
+                            </button>
+                        </div>
+                    `;
+                    usersList.appendChild(userItem);
+                }
+            });
+            
+            document.getElementById('onlineCount').textContent = `${onlineCount} online`;
+            usersCount.textContent = `(${onlineCount})`;
+            
+            // If no users online, show message
+            if (onlineCount === 0) {
+                usersList.innerHTML = `
+                    <div style="text-align: center; padding: 40px 20px; color: #6c757d;">
+                        <i class="fas fa-users" style="font-size: 48px; margin-bottom: 10px;"></i>
+                        <p>No other users online</p>
+                        <small>Open this page on another device to test</small>
+                    </div>
+                `;
+            }
+        }
+
+        // Call Management
+        function initiateCall(targetUserId, callType) {
+            const targetUser = onlineUsers.get(targetUserId);
+            if (!targetUser) {
+                showError('User is not available');
+                return;
+            }
+            
+            if (targetUser.inCall) {
+                showError('User is already in a call');
+                return;
+            }
+            
+            currentCall = {
+                id: generateCallId(),
+                targetUserId: targetUserId,
+                type: callType,
+                initiator: currentUser.id
+            };
+            
+            sendWebSocketMessage({
+                type: 'call_offer',
+                callId: currentCall.id,
+                from: currentUser,
+                to: targetUserId,
+                callType: callType,
+                timestamp: Date.now()
+            });
+            
+            isInCall = true;
+            showCallInterface();
+            updateUserStatus(true);
+            showSuccess(`Calling ${targetUser.username}...`);
+        }
+
+        function handleIncomingCall(data) {
+            // Only handle calls meant for current user
+            if (data.to !== currentUser.id) return;
+            
+            incomingCallData = data;
+            
+            // Play incoming call sound
+            try {
+                incomingCallSound.play().catch(e => console.log('Audio play failed:', e));
+            } catch (e) {
+                console.log('Audio play error:', e);
+            }
+            
+            document.getElementById('callerInfo').textContent = 
+                `${data.from.username} is ${data.callType === 'video' ? 'video' : 'audio'} calling you...`;
+            incomingCallNotification.style.display = 'block';
+        }
+
+        function acceptCall() {
+            if (!incomingCallData) return;
+            
+            // Stop call sound
+            incomingCallSound.pause();
+            incomingCallSound.currentTime = 0;
+            
+            currentCall = {
+                id: incomingCallData.callId,
+                targetUserId: incomingCallData.from.id,
+                type: incomingCallData.callType,
+                initiator: incomingCallData.from.id
+            };
+            
+            sendWebSocketMessage({
+                type: 'call_answer',
+                callId: incomingCallData.callId,
+                from: currentUser,
+                to: incomingCallData.from.id,
+                answer: true,
+                timestamp: Date.now()
+            });
+            
+            incomingCallNotification.style.display = 'none';
+            isInCall = true;
+            showCallInterface();
+            
+            // Update user status
+            updateUserStatus(true);
+            
+            showSuccess(`Connected to ${incomingCallData.from.username}`);
+            
+            // Simulate remote video for demo
+            setTimeout(() => {
+                simulateRemoteVideo(incomingCallData.from.id);
+            }, 1000);
+        }
+
+        function rejectCall() {
+            if (!incomingCallData) return;
+            
+            // Stop call sound
+            incomingCallSound.pause();
+            incomingCallSound.currentTime = 0;
+            
+            sendWebSocketMessage({
+                type: 'call_answer',
+                callId: incomingCallData.callId,
+                from: currentUser,
+                to: incomingCallData.from.id,
+                answer: false,
+                timestamp: Date.now()
+            });
+            
+            incomingCallNotification.style.display = 'none';
+            incomingCallData = null;
+            showError('Call declined');
+        }
+
+        function handleCallAnswer(data) {
+            if (data.answer) {
+                showSuccess(`${data.from.username} accepted your call`);
+                // Simulate remote video for demo
+                setTimeout(() => {
+                    simulateRemoteVideo(data.from.id);
+                }, 1000);
+            } else {
+                showError(`${data.from.username} declined your call`);
+                hangUp();
+            }
+        }
+
+        function handleCallEnd(data) {
+            showError('Call ended by other user');
+            hangUp();
+        }
+
+        function hangUp() {
+            if (currentCall) {
+                sendWebSocketMessage({
+                    type: 'call_end',
+                    callId: currentCall.id,
+                    from: currentUser,
+                    timestamp: Date.now()
+                });
+            }
+            
+            // Close all peer connections
+            Object.values(peerConnections).forEach(pc => pc.close());
+            peerConnections = {};
+            
+            // Stop screen share if active
+            if (isSharingScreen) {
+                stopScreenShare();
+            }
+            
+            // Reset UI
+            isInCall = false;
+            currentCall = null;
+            hideCallInterface();
+            
+            // Update user status
+            updateUserStatus(false);
+            
+            showSuccess('Call ended');
+        }
+
+        function updateUserStatus(inCall = false) {
+            if (currentUser) {
+                currentUser.inCall = inCall;
+                sendWebSocketMessage({
+                    type: 'user_status_update',
+                    user: currentUser,
+                    timestamp: Date.now()
+                });
+            }
+        }
 
         // Utility Functions
+        function generateCallId() {
+            return 'call_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
         function showError(message) {
             errorMessage.textContent = message;
             errorMessage.style.display = 'block';
             successMessage.style.display = 'none';
-
-            // Auto hide after 5 seconds
+            
             setTimeout(() => {
                 errorMessage.style.display = 'none';
             }, 5000);
@@ -322,231 +968,55 @@
             successMessage.textContent = message;
             successMessage.style.display = 'block';
             errorMessage.style.display = 'none';
-
-            // Auto hide after 3 seconds
+            
             setTimeout(() => {
                 successMessage.style.display = 'none';
             }, 3000);
         }
 
-        // Demo Mode Functions
-        function enableDemoMode() {
-            isDemoMode = true;
-            demoBadge.style.display = 'inline-block';
-
-            // Create a demo user
+        // Authentication
+        function login() {
+            const username = document.getElementById('loginUsername').value.trim();
+            
+            if (!username) {
+                showError('Please enter a username');
+                return;
+            }
+            
             currentUser = {
-                uid: 'demo-user-' + Date.now(),
-                username: 'Demo User',
-                email: 'demo@example.com'
+                id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                username: username,
+                online: true,
+                inCall: false
             };
-
+            
             showApp();
-            showSuccess("Demo mode activated! You can test video calls locally.");
-        }
-
-        function setupDemoUsers() {
-            usersList.innerHTML = '';
-            demoUsers.forEach(user => {
-                if (user.id !== currentUser.uid) {
-                    const userItem = document.createElement('div');
-                    userItem.className = `user-item ${user.online ? 'online' : 'offline'}`;
-                    userItem.innerHTML = `
-                        <div class="avatar">${user.username.charAt(0).toUpperCase()}</div>
-                        <div>
-                            <div>${user.username}</div>
-                            <small>${user.online ? 'Online' : 'Offline'}</small>
-                        </div>
-                        <div class="call-actions">
-                            <button class="call-btn video-call" onclick="initiateDemoCall('${user.id}', '${user.username}', 'video')">
-                                <i class="fas fa-video"></i>
-                            </button>
-                            <button class="call-btn audio-call" onclick="initiateDemoCall('${user.id}', '${user.username}', 'audio')">
-                                <i class="fas fa-phone"></i>
-                            </button>
-                        </div>
-                    `;
-                    usersList.appendChild(userItem);
-                }
-            });
-        }
-
-        function initiateDemoCall(targetUserId, targetUsername, callType) {
-            // Simulate incoming call after 2 seconds
-            setTimeout(() => {
-                document.getElementById('callerInfo').textContent = `${targetUsername} is ${callType === 'video' ? 'video' : 'audio'} calling you...`;
-                incomingCallNotification.style.display = 'block';
-
-                incomingCallData = {
-                    id: 'demo-call-' + Date.now(),
-                    from: targetUserId,
-                    type: callType,
-                    username: targetUsername
-                };
-            }, 2000);
-        }
-
-        // Authentication Functions
-        function showRegister() {
-            document.getElementById('loginForm').style.display = 'none';
-            document.getElementById('registerForm').style.display = 'block';
-            hideMessages();
-        }
-
-        function showLogin() {
-            document.getElementById('registerForm').style.display = 'none';
-            document.getElementById('loginForm').style.display = 'block';
-            hideMessages();
-        }
-
-        function hideMessages() {
-            errorMessage.style.display = 'none';
-            successMessage.style.display = 'none';
-        }
-
-        async function register() {
-            const username = document.getElementById('registerUsername').value;
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-
-            if (!username || !email || !password) {
-                showError('Please fill in all fields');
-                return;
-            }
-
-            try {
-                if (isDemoMode) {
-                    showError('Cannot register in demo mode. Please disable demo mode first.');
-                    return;
-                }
-
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-
-                await db.collection('users').doc(user.uid).set({
-                    username: username,
-                    email: email,
-                    online: true,
-                    lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                currentUser = {
-                    uid: user.uid,
-                    username: username,
-                    email: email
-                };
-
-                showApp();
-                showSuccess('Registration successful!');
-            } catch (error) {
-                console.error('Registration error:', error);
-
-                if (error.code === 'auth/configuration-not-found') {
-                    showError('Authentication not configured. Please enable demo mode or check Firebase configuration.');
-                } else if (error.code === 'auth/email-already-in-use') {
-                    showError('Email already registered. Please use a different email.');
-                } else if (error.code === 'auth/weak-password') {
-                    showError('Password is too weak. Please use a stronger password.');
-                } else if (error.code === 'auth/invalid-email') {
-                    showError('Invalid email address.');
-                } else {
-                    showError('Registration failed: ' + error.message);
-                }
-            }
-        }
-
-        async function login() {
-            const email = document.getElementById('loginUsername').value;
-            const password = document.getElementById('loginPassword').value;
-
-            if (!email || !password) {
-                showError('Please enter both email and password');
-                return;
-            }
-
-            // Demo accounts for testing
-            if (email === 'user1@test.com' && password === 'pass123') {
-                currentUser = {
-                    uid: 'test-user-1',
-                    username: 'Test User 1',
-                    email: 'user1@test.com'
-                };
-                showApp();
-                return;
-            } else if (email === 'user2@test.com' && password === 'pass123') {
-                currentUser = {
-                    uid: 'test-user-2',
-                    username: 'Test User 2',
-                    email: 'user2@test.com'
-                };
-                showApp();
-                return;
-            }
-
-            try {
-                if (isDemoMode) {
-                    showError('Cannot login in demo mode. Please disable demo mode first.');
-                    return;
-                }
-
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-
-                const userDoc = await db.collection('users').doc(user.uid).get();
-                if (!doc.exists) {
-                    showError('User not found. Please register first.');
-                    return;
-                }
-
-                currentUser = {
-                    uid: user.uid,
-                    username: userDoc.data().username,
-                    email: user.email
-                };
-
-                // Update user status to online
-                await db.collection('users').doc(user.uid).update({
-                    online: true,
-                    lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                showApp();
-                showSuccess('Login successful!');
-            } catch (error) {
-                console.error('Login error:', error);
-
-                if (error.code === 'auth/configuration-not-found') {
-                    showError('Authentication not configured. Please use demo mode or check Firebase configuration.');
-                } else if (error.code === 'auth/user-not-found') {
-                    showError('User not found. Please check your email or register.');
-                } else if (error.code === 'auth/wrong-password') {
-                    showError('Incorrect password. Please try again.');
-                } else if (error.code === 'auth/invalid-email') {
-                    showError('Invalid email address.');
-                } else {
-                    showError('Login failed: ' + error.message);
-                }
-            }
         }
 
         function logout() {
-            if (currentUser && !isDemoMode) {
-                db.collection('users').doc(currentUser.uid).update({
-                    online: false,
-                    lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                sendWebSocketMessage({
+                    type: 'user_leave',
+                    user: currentUser,
+                    timestamp: Date.now()
                 });
+                ws.close();
             }
-
-            if (auth) {
-                auth.signOut();
+            
+            // Stop media streams
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
             }
-
+            if (screenStream) {
+                screenStream.getTracks().forEach(track => track.stop());
+            }
+            
             currentUser = null;
-            isDemoMode = false;
+            onlineUsers.clear();
             authScreen.style.display = 'flex';
             appScreen.style.display = 'none';
-            demoBadge.style.display = 'none';
-            hideMessages();
+            connectionStatus.style.display = 'none';
+            hideCallInterface();
         }
 
         function showApp() {
@@ -554,23 +1024,16 @@
             appScreen.style.display = 'block';
             document.getElementById('userName').textContent = currentUser.username;
             document.getElementById('userAvatar').textContent = currentUser.username.charAt(0).toUpperCase();
-
+            
             initializeApp();
         }
 
-        // Initialize main application
+        // Media Functions
         async function initializeApp() {
             await startLocalStream();
-
-            if (isDemoMode) {
-                setupDemoUsers();
-            } else {
-                setupUsersListener();
-                setupCallsListener();
-            }
+            initializeWebSocket();
         }
 
-        // Media stream function (same as before)
         async function startLocalStream() {
             try {
                 const constraints = {
@@ -596,67 +1059,6 @@
             }
         }
 
-        // Accept call function for demo mode
-        async function acceptCall() {
-            if (!incomingCallData) return;
-
-            if (isDemoMode) {
-                // Simulate successful call connection in demo mode
-                incomingCallNotification.style.display = 'none';
-                isInCall = true;
-                showCallInterface();
-
-                // Simulate remote video after 1 second
-                setTimeout(() => {
-                    simulateRemoteVideo();
-                }, 1000);
-
-                showSuccess(`Connected to ${incomingCallData.username}`);
-            } else {
-                // Your existing acceptCall logic for real mode
-                await db.collection('calls').doc(incomingCallData.id).update({
-                    status: 'active',
-                    participants: firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
-                });
-
-                incomingCallNotification.style.display = 'none';
-                isInCall = true;
-                showCallInterface();
-                createPeerConnection(incomingCallData.id, true);
-            }
-        }
-
-        function simulateRemoteVideo() {
-            // Create a fake remote video stream
-            const canvas = document.createElement('canvas');
-            canvas.width = 640;
-            canvas.height = 480;
-            const context = canvas.getContext('2d');
-
-            // Create a gradient background
-            const gradient = context.createLinearGradient(0, 0, canvas.width, canvas.height);
-            gradient.addColorStop(0, '#667eea');
-            gradient.addColorStop(1, '#764ba2');
-            context.fillStyle = gradient;
-            context.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Add text
-            context.fillStyle = 'white';
-            context.font = '30px Arial';
-            context.textAlign = 'center';
-            context.fillText('Remote User', canvas.width / 2, canvas.height / 2);
-
-            // Convert to stream
-            const stream = canvas.captureStream(30);
-            addRemoteVideo('demo-remote', stream);
-        }
-
-        function rejectCall() {
-            incomingCallNotification.style.display = 'none';
-            incomingCallData = null;
-        }
-
-        // Add the rest of your existing functions (toggleMic, toggleVideo, hangUp, etc.)
         function toggleMic() {
             if (!localStream) return;
             const audioTrack = localStream.getAudioTracks()[0];
@@ -664,8 +1066,8 @@
                 audioTrack.enabled = !audioTrack.enabled;
                 const btn = document.getElementById('micBtn');
                 btn.classList.toggle('active', !audioTrack.enabled);
-                btn.innerHTML = audioTrack.enabled ?
-                    '<i class="fas fa-microphone"></i>' :
+                btn.innerHTML = audioTrack.enabled ? 
+                    '<i class="fas fa-microphone"></i>' : 
                     '<i class="fas fa-microphone-slash"></i>';
             }
         }
@@ -677,65 +1079,22 @@
                 videoTrack.enabled = !videoTrack.enabled;
                 const btn = document.getElementById('videoBtn');
                 btn.classList.toggle('active', !videoTrack.enabled);
-                btn.innerHTML = videoTrack.enabled ?
-                    '<i class="fas fa-video"></i>' :
+                btn.innerHTML = videoTrack.enabled ? 
+                    '<i class="fas fa-video"></i>' : 
                     '<i class="fas fa-video-slash"></i>';
             }
         }
 
-        function hangUp() {
-            isInCall = false;
-            currentCall = null;
-            hideCallInterface();
-
-            // Remove remote videos
-            const remoteVideos = document.querySelectorAll('.video-wrapper.remote');
-            remoteVideos.forEach(video => video.remove());
-
-            showSuccess('Call ended');
-        }
-
-        function showCallInterface() {
-            document.querySelector('.call-interface').style.display = 'flex';
-            document.querySelector('.users-panel').style.display = 'none';
-        }
-
-        function hideCallInterface() {
-            document.querySelector('.call-interface').style.display = 'none';
-            document.querySelector('.users-panel').style.display = 'block';
-        }
-
-        function addRemoteVideo(peerId, stream) {
-            const videoWrapper = document.createElement('div');
-            videoWrapper.className = 'video-wrapper remote';
-            videoWrapper.id = `remote-wrapper-${peerId}`;
-
-            const video = document.createElement('video');
-            video.id = `remote-${peerId}`;
-            video.autoplay = true;
-            video.playsinline = true;
-            video.srcObject = stream;
-
-            const label = document.createElement('div');
-            label.className = 'video-label';
-            label.textContent = 'Remote User';
-
-            videoWrapper.appendChild(video);
-            videoWrapper.appendChild(label);
-            videoContainer.appendChild(videoWrapper);
-        }
-
-        // Add screen share function
         async function toggleScreenShare() {
             if (!isSharingScreen) {
                 try {
-                    screenStream = await navigator.mediaDevices.getDisplayMedia({
+                    screenStream = await navigator.mediaDevices.getDisplayMedia({ 
                         video: { cursor: 'always' },
-                        audio: true
+                        audio: true 
                     });
                     isSharingScreen = true;
                     document.getElementById('screenShareBtn').classList.add('active');
-
+                    
                     screenStream.getTracks()[0].onended = stopScreenShare;
                     showSuccess('Screen sharing started');
                 } catch (error) {
@@ -756,8 +1115,93 @@
             showSuccess('Screen sharing stopped');
         }
 
-        // Add the remaining functions from your original code as needed
+        function simulateRemoteVideo(userId) {
+            // Create a fake remote video stream for demo
+            const canvas = document.createElement('canvas');
+            canvas.width = 640;
+            canvas.height = 480;
+            const context = canvas.getContext('2d');
+            
+            // Animate the background
+            let hue = 0;
+            function animate() {
+                hue = (hue + 1) % 360;
+                const gradient = context.createLinearGradient(0, 0, canvas.width, canvas.height);
+                gradient.addColorStop(0, `hsl(${hue}, 70%, 60%)`);
+                gradient.addColorStop(1, `hsl(${hue + 60}, 70%, 60%)`);
+                context.fillStyle = gradient;
+                context.fillRect(0, 0, canvas.width, canvas.height);
+                
+                context.fillStyle = 'white';
+                context.font = '30px Arial';
+                context.textAlign = 'center';
+                context.fillText('Remote User Video', canvas.width/2, canvas.height/2);
+                
+                context.font = '16px Arial';
+                context.fillText('Demo Mode - Real WebRTC would show actual video', canvas.width/2, canvas.height/2 + 40);
+                
+                requestAnimationFrame(animate);
+            }
+            animate();
+            
+            const stream = canvas.captureStream(30);
+            addRemoteVideo(userId, stream);
+        }
+
+        function addRemoteVideo(peerId, stream) {
+            // Remove existing video if present
+            const existingVideo = document.getElementById(`remote-${peerId}`);
+            if (existingVideo) {
+                existingVideo.remove();
+            }
+            
+            const videoWrapper = document.createElement('div');
+            videoWrapper.className = 'video-wrapper remote';
+            videoWrapper.id = `remote-wrapper-${peerId}`;
+
+            const video = document.createElement('video');
+            video.id = `remote-${peerId}`;
+            video.autoplay = true;
+            video.playsinline = true;
+            video.srcObject = stream;
+
+            const label = document.createElement('div');
+            label.className = 'video-label';
+            label.textContent = 'Remote User';
+
+            videoWrapper.appendChild(video);
+            videoWrapper.appendChild(label);
+            videoContainer.appendChild(videoWrapper);
+        }
+
+        function showCallInterface() {
+            document.querySelector('.call-interface').style.display = 'flex';
+            updateUserStatus(true);
+        }
+
+        function hideCallInterface() {
+            document.querySelector('.call-interface').style.display = 'none';
+            updateUserStatus(false);
+            
+            // Remove all remote videos
+            const remoteVideos = document.querySelectorAll('.video-wrapper.remote');
+            remoteVideos.forEach(video => video.remove());
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('VideoCall Pro initialized');
+            // Start periodic status updates
+            setInterval(() => {
+                if (currentUser && ws && ws.readyState === WebSocket.OPEN) {
+                    sendWebSocketMessage({
+                        type: 'ping',
+                        userId: currentUser.id,
+                        timestamp: Date.now()
+                    });
+                }
+            }, 30000); // Every 30 seconds
+        });
     </script>
 </body>
-
 </html>
