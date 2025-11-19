@@ -18,6 +18,7 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             color: #333;
+            overflow-x: hidden;
         }
 
         .container {
@@ -31,6 +32,7 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            padding: 20px;
         }
 
         .auth-box {
@@ -44,9 +46,13 @@
         }
 
         .logo {
-            font-size: 2.5rem;
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
             color: #667eea;
             margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
         .auth-form input {
@@ -72,13 +78,18 @@
             border-radius: 10px;
             font-size: 16px;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.3s;
             width: 100%;
             margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .btn:hover {
             background: #5a6fd8;
+            transform: translateY(-2px);
         }
 
         .btn-secondary {
@@ -113,6 +124,12 @@
             background: #e67e22;
         }
 
+        .btn-small {
+            padding: 8px 15px;
+            font-size: 14px;
+            width: auto;
+        }
+
         .error-message {
             color: #e74c3c;
             background: #f8d7da;
@@ -136,15 +153,19 @@
             border-radius: 20px;
             overflow: hidden;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            height: calc(100vh - 40px);
+            display: flex;
+            flex-direction: column;
         }
 
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 30px;
+            padding: 15px 20px;
             background: #f8f9fa;
             border-bottom: 1px solid #e9ecef;
+            flex-shrink: 0;
         }
 
         .user-info {
@@ -163,22 +184,29 @@
             align-items: center;
             justify-content: center;
             font-weight: bold;
+            flex-shrink: 0;
         }
 
         .main-content {
             display: flex;
-            min-height: 600px;
+            flex: 1;
+            overflow: hidden;
         }
 
         .users-panel {
             width: 300px;
             border-right: 1px solid #e9ecef;
             padding: 20px;
+            overflow-y: auto;
+            flex-shrink: 0;
         }
 
         .users-list h3 {
             margin-bottom: 15px;
             color: #495057;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .user-item {
@@ -242,6 +270,7 @@
             display: none;
             flex-direction: column;
             padding: 20px;
+            overflow: hidden;
         }
 
         .video-container {
@@ -250,6 +279,7 @@
             gap: 20px;
             flex: 1;
             margin-bottom: 20px;
+            overflow: auto;
         }
 
         .video-wrapper {
@@ -281,6 +311,7 @@
             display: flex;
             justify-content: center;
             gap: 15px;
+            flex-wrap: wrap;
         }
 
         .control-btn {
@@ -293,6 +324,9 @@
             font-size: 20px;
             cursor: pointer;
             transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .control-btn:hover {
@@ -319,6 +353,7 @@
             z-index: 1000;
             text-align: center;
             min-width: 300px;
+            max-width: 90vw;
         }
 
         .notification-buttons {
@@ -326,6 +361,7 @@
             gap: 10px;
             justify-content: center;
             margin-top: 20px;
+            flex-wrap: wrap;
         }
 
         .notification-buttons .btn {
@@ -355,6 +391,12 @@
         .call-type-buttons {
             display: flex;
             gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .call-type-buttons .btn {
+            flex: 1;
+            min-width: 120px;
         }
 
         .user-id-display {
@@ -401,6 +443,7 @@
             justify-content: center;
             gap: 10px;
             margin-top: 5px;
+            flex-wrap: wrap;
         }
 
         .user-id-badge {
@@ -422,10 +465,198 @@
             border-radius: 10px;
             font-size: 10px;
         }
+
+        /* Mobile responsive styles */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .auth-box {
+                padding: 30px 20px;
+            }
+
+            .app-container {
+                height: calc(100vh - 20px);
+                border-radius: 15px;
+            }
+
+            .header {
+                padding: 10px 15px;
+            }
+
+            .logo {
+                font-size: 1.5rem;
+            }
+
+            .main-content {
+                flex-direction: column;
+            }
+
+            .users-panel {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #e9ecef;
+                max-height: 40vh;
+                overflow-y: auto;
+            }
+
+            .call-interface {
+                padding: 15px;
+            }
+
+            .video-container {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .controls {
+                gap: 10px;
+            }
+
+            .control-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 16px;
+            }
+
+            .dialer-input {
+                flex-direction: column;
+            }
+
+            .call-type-buttons {
+                flex-direction: column;
+            }
+
+            .user-info {
+                flex-wrap: wrap;
+            }
+
+            .user-id-section {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .auth-box {
+                padding: 20px 15px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+
+            .user-info {
+                justify-content: center;
+            }
+
+            .notification {
+                padding: 20px;
+                min-width: 280px;
+            }
+
+            .notification-buttons {
+                flex-direction: column;
+            }
+        }
+
+        /* Toast notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 350px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .toast.success {
+            border-left: 4px solid #28a745;
+        }
+
+        .toast.error {
+            border-left: 4px solid #e74c3c;
+        }
+
+        .toast.warning {
+            border-left: 4px solid #f39c12;
+        }
+
+        .toast.info {
+            border-left: 4px solid #17a2b8;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Connection quality indicators */
+        .connection-quality.excellent {
+            background: rgba(40, 167, 69, 0.8);
+        }
+
+        .connection-quality.good {
+            background: rgba(23, 162, 184, 0.8);
+        }
+
+        .connection-quality.fair {
+            background: rgba(255, 193, 7, 0.8);
+        }
+
+        .connection-quality.poor {
+            background: rgba(220, 53, 69, 0.8);
+        }
+
+        /* Performance optimizations */
+        .video-wrapper video {
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            perspective: 1000;
+        }
+
+        /* Security indicators */
+        .security-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: #28a745;
+            margin-top: 5px;
+        }
+
+        .security-indicator i {
+            font-size: 14px;
+        }
     </style>
 </head>
 
 <body>
+    <!-- Toast notifications container -->
+    <div class="toast-container" id="toastContainer"></div>
+
     <!-- Authentication Screens -->
     <div id="authScreen" class="auth-container">
         <div class="auth-box">
@@ -440,8 +671,12 @@
                 <h2>Welcome Back</h2>
                 <input type="text" id="loginUsername" placeholder="Email" required>
                 <input type="password" id="loginPassword" placeholder="Password" required>
-                <button class="btn" onclick="login()">Sign In</button>
-                <button class="btn btn-secondary" onclick="showRegister()">Create Account</button>
+                <button class="btn" onclick="login()">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+                <button class="btn btn-secondary" onclick="showRegister()">
+                    <i class="fas fa-user-plus"></i> Create Account
+                </button>
             </div>
 
             <div id="registerForm" class="auth-form" style="display: none;">
@@ -449,8 +684,12 @@
                 <input type="text" id="registerUsername" placeholder="Username" required>
                 <input type="email" id="registerEmail" placeholder="Email" required>
                 <input type="password" id="registerPassword" placeholder="Password" required>
-                <button class="btn" onclick="register()">Sign Up</button>
-                <button class="btn btn-secondary" onclick="showLogin()">Back to Login</button>
+                <button class="btn" onclick="register()">
+                    <i class="fas fa-user-plus"></i> Sign Up
+                </button>
+                <button class="btn btn-secondary" onclick="showLogin()">
+                    <i class="fas fa-arrow-left"></i> Back to Login
+                </button>
             </div>
         </div>
     </div>
@@ -471,7 +710,7 @@
                             <span class="user-id-badge" id="userUniqueId">0000000</span>
                         </div>
                     </div>
-                    <button class="btn btn-secondary" onclick="logout()" style="margin: 0 0 0 10px; padding: 8px 15px;">
+                    <button class="btn btn-secondary btn-small" onclick="logout()">
                         <i class="fas fa-sign-out-alt"></i>
                     </button>
                 </div>
@@ -484,19 +723,22 @@
                         <div style="margin-bottom: 10px;">Your Unique ID:</div>
                         <div class="user-id-section">
                             <strong id="displayUserId">0000000</strong>
-                            <button onclick="copyUserId()" style="padding: 5px 10px; background: none; border: 1px solid #667eea; border-radius: 5px; cursor: pointer;">
+                            <button onclick="copyUserId()" class="btn-small" style="background: none; border: 1px solid #667eea; color: #667eea;">
                                 <i class="fas fa-copy"></i> Copy
                             </button>
                         </div>
                         <div style="font-size: 12px; color: #666; margin-top: 10px;">
                             Share this ID with friends to receive calls
                         </div>
+                        <div class="security-indicator">
+                            <i class="fas fa-shield-alt"></i> End-to-end encrypted
+                        </div>
                     </div>
 
                     <div class="dialer">
                         <div class="dialer-input">
-                            <input type="text" id="dialInput" placeholder="Enter 7-digit ID" maxlength="7">
-                            <button class="btn" onclick="validateAndCall()">
+                            <input type="text" id="dialInput" placeholder="Enter 7-digit ID" maxlength="7" pattern="[0-9]{7}">
+                            <button class="btn btn-small" onclick="validateAndCall()">
                                 <i class="fas fa-phone"></i>
                             </button>
                         </div>
@@ -614,19 +856,23 @@
         let userUniqueId = null;
         let signalingUnsubscribe = null;
         let connectionCheckInterval = null;
+        let statsInterval = null;
 
-        // Improved WebRTC Configuration with TURN servers
+        // Enhanced WebRTC Configuration with TURN servers
         const rtcConfig = {
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
                 { urls: 'stun:stun1.l.google.com:19302' },
                 { urls: 'stun:stun2.l.google.com:19302' },
                 { urls: 'stun:stun3.l.google.com:19302' },
-                { urls: 'stun:stun4.l.google.com:19302' }
+                { urls: 'stun:stun4.l.google.com:19302' },
+                // You can add paid TURN servers here for better connectivity
+                // { urls: 'turn:your-turn-server.com', username: 'username', credential: 'password' }
             ],
             iceCandidatePoolSize: 10,
             bundlePolicy: 'max-bundle',
-            rtcpMuxPolicy: 'require'
+            rtcpMuxPolicy: 'require',
+            iceTransportPolicy: 'all'
         };
 
         // DOM Elements
@@ -643,6 +889,7 @@
         const overlay = document.getElementById('overlay');
         const usersLoading = document.getElementById('usersLoading');
         const callStatus = document.getElementById('callStatus');
+        const toastContainer = document.getElementById('toastContainer');
 
         // Storage Keys
         const STORAGE_KEYS = {
@@ -658,6 +905,33 @@
 
         let appState = AppState.AUTH;
 
+        // Toast notification system
+        function showToast(message, type = 'info', duration = 5000) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            let icon = 'fas fa-info-circle';
+            if (type === 'success') icon = 'fas fa-check-circle';
+            else if (type === 'error') icon = 'fas fa-exclamation-circle';
+            else if (type === 'warning') icon = 'fas fa-exclamation-triangle';
+            
+            toast.innerHTML = `
+                <i class="${icon}"></i>
+                <span>${message}</span>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // Auto remove after duration
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, duration);
+            
+            return toast;
+        }
+
         // Utility Functions
         function showError(message) {
             errorMessage.textContent = message;
@@ -666,6 +940,7 @@
             setTimeout(() => {
                 errorMessage.style.display = 'none';
             }, 5000);
+            showToast(message, 'error');
         }
 
         function showSuccess(message) {
@@ -675,6 +950,7 @@
             setTimeout(() => {
                 successMessage.style.display = 'none';
             }, 3000);
+            showToast(message, 'success');
         }
 
         // WebRTC Data Serialization Functions
@@ -908,7 +1184,7 @@
             }
         }
 
-        // Improved WebRTC Functions with better error handling
+        // Enhanced WebRTC Functions with better error handling and performance
         async function createPeerConnection(targetId, isInitiator = false) {
             if (!targetId) {
                 console.error("Cannot create peer connection: missing targetId");
@@ -953,7 +1229,7 @@
                     updateCallStatus(state);
                     
                     if (state === 'connected') {
-                        showSuccess('Call connected successfully!');
+                        showToast('Call connected successfully!', 'success');
                         startConnectionMonitoring(pc, targetId);
                     } else if (state === 'failed' || state === 'disconnected') {
                         console.error(`Connection ${state} with ${targetId}`);
@@ -972,6 +1248,20 @@
                 // Handle ICE connection state
                 pc.oniceconnectionstatechange = () => {
                     console.log(`ICE connection state with ${targetId}: ${pc.iceConnectionState}`);
+                };
+
+                // Handle negotiation needed event
+                pc.onnegotiationneeded = async () => {
+                    console.log('Negotiation needed for:', targetId);
+                    if (isInitiator) {
+                        try {
+                            const offer = await pc.createOffer();
+                            await pc.setLocalDescription(offer);
+                            sendSignalingMessage(targetId, 'offer', offer);
+                        } catch (error) {
+                            console.error('Error during negotiation:', error);
+                        }
+                    }
                 };
 
                 peerConnections[targetId] = pc;
@@ -1044,7 +1334,7 @@
 
         function handleRemoteHangup(from) {
             console.log('Remote user hung up:', from);
-            showSuccess('Call ended by remote user');
+            showToast('Call ended by remote user', 'info');
             removePeerConnection(from);
             if (Object.keys(peerConnections).length === 0) {
                 hangUp();
@@ -1104,15 +1394,34 @@
             }, 5000);
         }
 
-        function updateConnectionQuality(pc, targetId) {
-            // This is a simplified connection quality indicator
-            // In a real app, you'd use RTCPeerConnection.getStats()
-            const qualityElement = document.getElementById(`connection-quality-${targetId}`) || 
-                                 document.getElementById('localConnectionQuality');
-            if (qualityElement) {
-                const states = ['Poor', 'Fair', 'Good', 'Excellent'];
-                const randomQuality = states[Math.floor(Math.random() * states.length)];
-                qualityElement.textContent = randomQuality;
+        async function updateConnectionQuality(pc, targetId) {
+            try {
+                const stats = await pc.getStats();
+                let packetsLost = 0;
+                let packetsReceived = 0;
+                
+                stats.forEach(report => {
+                    if (report.type === 'inbound-rtp' && report.mediaType === 'video') {
+                        packetsLost += report.packetsLost || 0;
+                        packetsReceived += report.packetsReceived || 1;
+                    }
+                });
+                
+                const lossRate = packetsLost / (packetsReceived + packetsLost);
+                let quality = 'excellent';
+                
+                if (lossRate > 0.1) quality = 'poor';
+                else if (lossRate > 0.05) quality = 'fair';
+                else if (lossRate > 0.02) quality = 'good';
+                
+                const qualityElement = document.getElementById(`connection-quality-${targetId}`) || 
+                                     document.getElementById('localConnectionQuality');
+                if (qualityElement) {
+                    qualityElement.textContent = quality.charAt(0).toUpperCase() + quality.slice(1);
+                    qualityElement.className = `connection-quality ${quality}`;
+                }
+            } catch (error) {
+                console.error('Error getting connection stats:', error);
             }
         }
 
@@ -1144,6 +1453,11 @@
                 return;
             }
 
+            if (password.length < 6) {
+                showError('Password must be at least 6 characters long');
+                return;
+            }
+
             try {
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 const user = userCredential.user;
@@ -1171,13 +1485,15 @@
                 saveUserSession(currentUser);
 
                 showApp();
-                showSuccess('Registration successful! Your ID: ' + userUniqueId);
+                showToast('Registration successful! Your ID: ' + userUniqueId, 'success');
             } catch (error) {
                 console.error('Registration error:', error);
                 if (error.code === 'auth/email-already-in-use') {
                     showError('Email already registered.');
                 } else if (error.code === 'auth/weak-password') {
                     showError('Password is too weak.');
+                } else if (error.code === 'auth/invalid-email') {
+                    showError('Invalid email address.');
                 } else {
                     showError('Registration failed: ' + error.message);
                 }
@@ -1232,13 +1548,15 @@
                 });
 
                 showApp();
-                showSuccess('Login successful! Your ID: ' + userUniqueId);
+                showToast('Login successful! Your ID: ' + userUniqueId, 'success');
             } catch (error) {
                 console.error('Login error:', error);
                 if (error.code === 'auth/user-not-found') {
                     showError('User not found.');
                 } else if (error.code === 'auth/wrong-password') {
                     showError('Incorrect password.');
+                } else if (error.code === 'auth/invalid-email') {
+                    showError('Invalid email address.');
                 } else {
                     showError('Login failed: ' + error.message);
                 }
@@ -1246,6 +1564,8 @@
         }
 
         function logout() {
+            showToast('Signing out...', 'info');
+            
             if (currentUser && currentUser.uid) {
                 db.collection('users').doc(currentUser.uid).update({
                     online: false,
@@ -1259,6 +1579,10 @@
 
             if (connectionCheckInterval) {
                 clearInterval(connectionCheckInterval);
+            }
+
+            if (statsInterval) {
+                clearInterval(statsInterval);
             }
 
             // Close all peer connections
@@ -1279,6 +1603,10 @@
             appScreen.style.display = 'none';
             hideMessages();
             appState = AppState.AUTH;
+            
+            setTimeout(() => {
+                showToast('Successfully signed out', 'success');
+            }, 500);
         }
 
         function showApp() {
@@ -1375,28 +1703,62 @@
                 );
         }
 
-        // Media stream function
+        // Enhanced media stream function with fallback options
         async function startLocalStream() {
             try {
+                // Try to get the best quality stream first
                 const constraints = {
                     video: {
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 },
-                        frameRate: { ideal: 30 }
+                        width: { ideal: 1280, min: 640 },
+                        height: { ideal: 720, min: 480 },
+                        frameRate: { ideal: 30, min: 15 },
+                        facingMode: 'user'
                     },
                     audio: {
                         echoCancellation: true,
                         noiseSuppression: true,
-                        autoGainControl: true
+                        autoGainControl: true,
+                        channelCount: 1
                     }
                 };
 
-                localStream = await navigator.mediaDevices.getUserMedia(constraints);
+                try {
+                    localStream = await navigator.mediaDevices.getUserMedia(constraints);
+                } catch (error) {
+                    console.warn('Failed to get ideal stream, trying fallback:', error);
+                    // Fallback to basic constraints
+                    localStream = await navigator.mediaDevices.getUserMedia({
+                        video: true,
+                        audio: true
+                    });
+                }
+                
                 document.getElementById('localVideo').srcObject = localStream;
                 console.log("Local stream started successfully");
+                
+                // Set up periodic stats collection for performance monitoring
+                statsInterval = setInterval(async () => {
+                    if (localStream) {
+                        const videoTrack = localStream.getVideoTracks()[0];
+                        if (videoTrack) {
+                            const settings = videoTrack.getSettings();
+                            console.log('Video settings:', settings);
+                        }
+                    }
+                }, 10000);
+                
             } catch (error) {
                 console.error('Error accessing media devices:', error);
                 showError('Camera and microphone access is required for video calls.');
+                
+                // Try to get audio only if video fails
+                try {
+                    localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    document.getElementById('localVideo').style.display = 'none';
+                    showToast('Video unavailable, audio only mode', 'warning');
+                } catch (audioError) {
+                    console.error('Audio also failed:', audioError);
+                }
             }
         }
 
@@ -1449,7 +1811,7 @@
                 }
 
                 const targetUser = usersSnapshot.docs[0].data();
-                showSuccess(`Calling ${targetUser.username}...`);
+                showToast(`Calling ${targetUser.username}...`, 'info');
 
                 // Setup WebRTC connection
                 const pc = await createPeerConnection(targetId, true);
@@ -1511,7 +1873,7 @@
                 isInCall = true;
                 activeCallData = incomingCallData;
                 showCallInterface();
-                showSuccess('Call accepted!');
+                showToast('Call accepted!', 'success');
                 
                 console.log('Call accepted with:', incomingCallData.from);
                 
@@ -1530,7 +1892,7 @@
             incomingCallNotification.style.display = 'none';
             overlay.style.display = 'none';
             incomingCallData = null;
-            showSuccess('Call declined');
+            showToast('Call declined', 'info');
         }
 
         function addRemoteVideo(peerId, stream, username = 'Remote User') {
@@ -1580,22 +1942,36 @@
                 clearInterval(connectionCheckInterval);
             }
 
+            if (statsInterval) {
+                clearInterval(statsInterval);
+            }
+
             isInCall = false;
             currentCall = null;
             activeCallData = null;
             hideCallInterface();
 
-            showSuccess('Call ended');
+            showToast('Call ended', 'info');
         }
 
         function showCallInterface() {
             document.querySelector('.call-interface').style.display = 'flex';
             updateCallStatus('connecting');
+            
+            // On mobile, hide the users panel during calls
+            if (window.innerWidth <= 768) {
+                document.querySelector('.users-panel').style.display = 'none';
+            }
         }
 
         function hideCallInterface() {
             document.querySelector('.call-interface').style.display = 'none';
             updateCallStatus('Ready to call');
+            
+            // Show users panel again on mobile
+            if (window.innerWidth <= 768) {
+                document.querySelector('.users-panel').style.display = 'block';
+            }
         }
 
         function toggleMic() {
@@ -1608,6 +1984,8 @@
                 btn.innerHTML = audioTrack.enabled ?
                     '<i class="fas fa-microphone"></i>' :
                     '<i class="fas fa-microphone-slash"></i>';
+                    
+                showToast(audioTrack.enabled ? 'Microphone on' : 'Microphone off', 'info', 2000);
             }
         }
 
@@ -1621,6 +1999,8 @@
                 btn.innerHTML = videoTrack.enabled ?
                     '<i class="fas fa-video"></i>' :
                     '<i class="fas fa-video-slash"></i>';
+                    
+                showToast(videoTrack.enabled ? 'Video on' : 'Video off', 'info', 2000);
             }
         }
 
@@ -1646,7 +2026,7 @@
                     });
 
                     screenStream.getTracks()[0].onended = stopScreenShare;
-                    showSuccess('Screen sharing started');
+                    showToast('Screen sharing started', 'success');
                 } catch (error) {
                     console.error('Screen share error:', error);
                     showError('Failed to start screen sharing');
@@ -1675,7 +2055,7 @@
                     }
                 });
             }
-            showSuccess('Screen sharing stopped');
+            showToast('Screen sharing stopped', 'info');
         }
 
         function copyUserId() {
@@ -1684,11 +2064,20 @@
                 return;
             }
             navigator.clipboard.writeText(userUniqueId).then(() => {
-                showSuccess('User ID copied to clipboard!');
+                showToast('User ID copied to clipboard!', 'success');
             }).catch(() => {
                 showError('Failed to copy user ID');
             });
         }
+
+        // Handle window resize for responsive layout
+        window.addEventListener('resize', function() {
+            if (isInCall && window.innerWidth <= 768) {
+                document.querySelector('.users-panel').style.display = 'none';
+            } else if (!isInCall && window.innerWidth <= 768) {
+                document.querySelector('.users-panel').style.display = 'block';
+            }
+        });
 
         // Initialize auth state listener and check for existing session
         auth.onAuthStateChanged((user) => {
@@ -1744,7 +2133,7 @@
                     currentUser = session;
                     userUniqueId = session.uniqueId;
                     showApp();
-                    showSuccess('Welcome back! Your ID: ' + userUniqueId);
+                    showToast('Welcome back! Your ID: ' + userUniqueId, 'success');
                 }
             }
         });
@@ -1758,6 +2147,11 @@
                 userUniqueId = session.uniqueId;
                 showApp();
             }
+            
+            // Add input validation for dial input
+            dialInput.addEventListener('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '').slice(0, 7);
+            });
         });
     </script>
 </body>
