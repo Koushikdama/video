@@ -65,6 +65,59 @@
             gap: 10px;
         }
 
+        .auth-form input {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .auth-form input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: var(--success);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+        }
+
         /* Application Styles */
         .app-container {
             background: white;
@@ -275,6 +328,43 @@
             margin-bottom: 5px;
         }
 
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .modal-buttons .btn {
+            width: auto;
+            padding: 10px 20px;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .container { padding: 10px; }
@@ -284,6 +374,7 @@
             .video-grid { grid-template-columns: 1fr; padding: 10px; }
             .controls { gap: 10px; padding: 15px; }
             .control-btn { width: 50px; height: 50px; font-size: 16px; }
+            .modal-content { padding: 20px; }
         }
 
         /* Loading States */
@@ -339,7 +430,7 @@
                         <div id="userName">User</div>
                         <small>ID: <span id="userUniqueId">0000000</span></small>
                     </div>
-                    <button class="control-btn" onclick="logout()" title="Logout">
+                    <button class="control-btn" onclick="app.logout()" title="Logout">
                         <i class="fas fa-sign-out-alt"></i>
                     </button>
                 </div>
@@ -363,7 +454,7 @@
                                     <code id="displayUserId">0000000</code>
                                 </div>
                             </div>
-                            <button class="control-btn" onclick="copyUserId()" title="Copy ID">
+                            <button class="control-btn" onclick="app.copyUserId()" title="Copy ID">
                                 <i class="fas fa-copy"></i>
                             </button>
                         </div>
@@ -387,19 +478,19 @@
 
             <!-- Controls -->
             <div class="controls">
-                <button class="control-btn" id="micBtn" onclick="toggleMic()" title="Microphone">
+                <button class="control-btn" id="micBtn" onclick="app.toggleMic()" title="Microphone">
                     <i class="fas fa-microphone"></i>
                 </button>
-                <button class="control-btn" id="videoBtn" onclick="toggleVideo()" title="Camera">
+                <button class="control-btn" id="videoBtn" onclick="app.toggleVideo()" title="Camera">
                     <i class="fas fa-video"></i>
                 </button>
-                <button class="control-btn" id="screenShareBtn" onclick="toggleScreenShare()" title="Share Screen">
+                <button class="control-btn" id="screenShareBtn" onclick="app.toggleScreenShare()" title="Share Screen">
                     <i class="fas fa-desktop"></i>
                 </button>
-                <button class="control-btn" id="statsBtn" onclick="toggleStats()" title="Show Stats">
+                <button class="control-btn" id="statsBtn" onclick="app.toggleStats()" title="Show Stats">
                     <i class="fas fa-chart-bar"></i>
                 </button>
-                <button class="control-btn end-call" onclick="hangUp()" title="End Call">
+                <button class="control-btn end-call" onclick="app.hangUp()" title="End Call">
                     <i class="fas fa-phone-slash"></i>
                 </button>
             </div>
@@ -412,10 +503,10 @@
             <h3>Incoming Call</h3>
             <p id="callerInfo">User is calling you...</p>
             <div class="modal-buttons">
-                <button class="btn btn-success" onclick="acceptCall()">
+                <button class="btn btn-success" onclick="app.acceptCall()">
                     <i class="fas fa-phone"></i> Accept
                 </button>
-                <button class="btn btn-danger" onclick="rejectCall()">
+                <button class="btn btn-danger" onclick="app.rejectCall()">
                     <i class="fas fa-phone-slash"></i> Decline
                 </button>
             </div>
@@ -428,13 +519,13 @@
             <h3>Start a Call</h3>
             <input type="text" id="dialInput" placeholder="Enter Participant ID" maxlength="7">
             <div class="modal-buttons">
-                <button class="btn btn-success" onclick="initiateCall('video')">
+                <button class="btn btn-success" onclick="app.initiateCall('video')">
                     <i class="fas fa-video"></i> Video Call
                 </button>
-                <button class="btn" onclick="initiateCall('audio')">
+                <button class="btn" onclick="app.initiateCall('audio')">
                     <i class="fas fa-phone"></i> Audio Call
                 </button>
-                <button class="btn btn-secondary" onclick="closeDialer()">
+                <button class="btn btn-secondary" onclick="app.closeDialer()">
                     Cancel
                 </button>
             </div>
@@ -444,30 +535,15 @@
     <!-- Overlay -->
     <div class="overlay" id="overlay" style="display: none;"></div>
 
-    <!-- Scripts -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuid.min.js"></script>
     <script>
         // Enhanced WebRTC Configuration with multiple STUN/TURN servers
         const RTC_CONFIG = {
             iceServers: [
-                // Google STUN servers
                 { urls: 'stun:stun.l.google.com:19302' },
                 { urls: 'stun:stun1.l.google.com:19302' },
                 { urls: 'stun:stun2.l.google.com:19302' },
                 { urls: 'stun:stun3.l.google.com:19302' },
                 { urls: 'stun:stun4.l.google.com:19302' },
-                
-                // Twilio STUN servers (more reliable)
-                { urls: 'stun:global.stun.twilio.com:3478' },
-                
-                // Paid TURN servers for better connectivity (replace with your own)
-                // {
-                //     urls: 'turn:your-turn-server.com:3478',
-                //     username: 'username',
-                //     credential: 'password'
-                // },
-                
-                // Fallback TURN servers
                 {
                     urls: 'turn:openrelay.metered.ca:80',
                     username: 'openrelayproject',
@@ -499,7 +575,6 @@
                 this.incomingCallData = null;
                 this.statsInterval = null;
                 this.signaling = new SignalingService();
-                this.sfu = new SFUClient();
                 this.observability = new Observability();
                 
                 this.initializeApp();
@@ -585,6 +660,16 @@
             }
 
             // Authentication Methods
+            showLogin() {
+                document.getElementById('loginForm').style.display = 'block';
+                document.getElementById('registerForm').style.display = 'none';
+            }
+
+            showRegister() {
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('registerForm').style.display = 'block';
+            }
+
             async register() {
                 const username = document.getElementById('registerUsername').value;
                 const email = document.getElementById('registerEmail').value;
@@ -598,7 +683,6 @@
                     this.showToast('Creating account...', 'info');
                     
                     // In a real app, you'd call your backend API
-                    // For demo purposes, we'll simulate registration
                     await this.simulateRegistration(username, email, password);
                     
                     this.showToast('Account created successfully!', 'success');
@@ -649,7 +733,6 @@
                 this.hangUp();
                 this.stopLocalStream();
                 this.signaling.disconnect();
-                this.sfu.disconnect();
                 
                 // Clear session
                 this.clearUserSession();
@@ -665,7 +748,7 @@
                 }, 500);
             }
 
-            // WebRTC Methods
+            // WebRTC Methods - IMPLEMENTED MISSING METHODS
             async startLocalStream() {
                 try {
                     const constraints = {
@@ -698,6 +781,46 @@
                     } catch (audioError) {
                         this.observability.error('MEDIA', 'Audio fallback failed', audioError);
                     }
+                }
+            }
+
+            addLocalVideo() {
+                const videoGrid = document.getElementById('videoGrid');
+                
+                // Remove existing local video if present
+                const existingLocal = videoGrid.querySelector('.video-participant.local');
+                if (existingLocal) {
+                    existingLocal.remove();
+                }
+
+                const localParticipant = document.createElement('div');
+                localParticipant.className = 'video-participant local';
+                localParticipant.innerHTML = `
+                    <video id="localVideo" autoplay playsinline muted></video>
+                    <div class="participant-info">
+                        <div class="participant-name">You (Local)</div>
+                        <div class="connection-quality quality-excellent" id="localConnectionQuality">Excellent</div>
+                    </div>
+                `;
+
+                videoGrid.appendChild(localParticipant);
+                
+                // Set the video source
+                const localVideo = document.getElementById('localVideo');
+                if (localVideo && this.localStream) {
+                    localVideo.srcObject = this.localStream;
+                }
+            }
+
+            stopLocalStream() {
+                if (this.localStream) {
+                    this.localStream.getTracks().forEach(track => track.stop());
+                    this.localStream = null;
+                }
+                
+                if (this.screenStream) {
+                    this.screenStream.getTracks().forEach(track => track.stop());
+                    this.screenStream = null;
                 }
             }
 
@@ -740,7 +863,72 @@
                 }
             }
 
-            async initiateCall(targetId, callType = 'video') {
+            handleRemoteTrack(targetId, event) {
+                console.log('Received remote track from:', targetId, event.streams);
+                if (event.streams && event.streams[0]) {
+                    this.addRemoteVideo(targetId, event.streams[0]);
+                }
+            }
+
+            handleIceCandidate(targetId, event) {
+                if (event.candidate) {
+                    console.log('Sending ICE candidate to:', targetId);
+                    this.signaling.sendIceCandidate(targetId, event.candidate);
+                }
+            }
+
+            handleConnectionStateChange(targetId, pc) {
+                const state = pc.connectionState;
+                console.log(`Connection state with ${targetId}: ${state}`);
+                this.updateCallStatus(state);
+                
+                if (state === 'connected') {
+                    this.showToast('Call connected successfully!', 'success');
+                    this.startConnectionMonitoring(pc, targetId);
+                } else if (state === 'failed' || state === 'disconnected') {
+                    console.error(`Connection ${state} with ${targetId}`);
+                    if (pc.connectionState === 'failed') {
+                        setTimeout(() => {
+                            if (pc.connectionState === 'failed') {
+                                console.log('Attempting to restart ICE for:', targetId);
+                                pc.restartIce();
+                            }
+                        }, 2000);
+                    }
+                }
+            }
+
+            handleIceConnectionStateChange(targetId, pc) {
+                console.log(`ICE connection state with ${targetId}: ${pc.iceConnectionState}`);
+            }
+
+            setupDataChannel(targetId, channel) {
+                channel.onopen = () => {
+                    console.log(`Data channel with ${targetId} opened`);
+                    this.showToast(`Data channel with ${targetId} connected`, 'info');
+                };
+                
+                channel.onmessage = (event) => {
+                    console.log(`Message from ${targetId}:`, event.data);
+                    // Handle data channel messages
+                };
+                
+                channel.onclose = () => {
+                    console.log(`Data channel with ${targetId} closed`);
+                };
+                
+                this.dataChannels.set(targetId, channel);
+            }
+
+            async initiateCall(callType = 'video', targetId = null) {
+                if (!targetId) {
+                    targetId = document.getElementById('dialInput').value.trim();
+                    if (!targetId) {
+                        this.showToast('Please enter a participant ID', 'error');
+                        return;
+                    }
+                }
+
                 if (this.isInCall) {
                     this.showToast('Already in a call', 'warning');
                     return;
@@ -807,6 +995,83 @@
                     this.showToast('Failed to accept call', 'error');
                 } finally {
                     this.incomingCallData = null;
+                }
+            }
+
+            rejectCall() {
+                if (!this.incomingCallData) return;
+
+                this.signaling.sendCallRejected(this.incomingCallData.from, 'rejected');
+                this.hideIncomingCallModal();
+                this.incomingCallData = null;
+                this.showToast('Call declined', 'info');
+            }
+
+            hangUp() {
+                console.log('Hanging up call');
+                
+                // Send call-ended signal to all peers
+                this.peerConnections.forEach((pc, targetId) => {
+                    this.signaling.sendCallEnded(targetId);
+                    this.removePeerConnection(targetId);
+                });
+
+                if (this.statsInterval) {
+                    clearInterval(this.statsInterval);
+                }
+
+                this.isInCall = false;
+                this.hideCallInterface();
+                this.showToast('Call ended', 'info');
+            }
+
+            removePeerConnection(targetId) {
+                const pc = this.peerConnections.get(targetId);
+                if (pc) {
+                    pc.close();
+                    this.peerConnections.delete(targetId);
+                }
+                
+                const dc = this.dataChannels.get(targetId);
+                if (dc) {
+                    dc.close();
+                    this.dataChannels.delete(targetId);
+                }
+                
+                // Remove remote video
+                this.removeRemoteVideo(targetId);
+            }
+
+            addRemoteVideo(peerId, stream) {
+                const videoGrid = document.getElementById('videoGrid');
+                
+                // Remove existing remote video if present
+                this.removeRemoteVideo(peerId);
+
+                const remoteParticipant = document.createElement('div');
+                remoteParticipant.className = 'video-participant remote';
+                remoteParticipant.id = `remote-${peerId}`;
+                remoteParticipant.innerHTML = `
+                    <video id="remote-video-${peerId}" autoplay playsinline></video>
+                    <div class="participant-info">
+                        <div class="participant-name">User ${peerId}</div>
+                        <div class="connection-quality" id="connection-quality-${peerId}">Connecting...</div>
+                    </div>
+                `;
+
+                videoGrid.appendChild(remoteParticipant);
+                
+                // Set the video source
+                const remoteVideo = document.getElementById(`remote-video-${peerId}`);
+                if (remoteVideo && stream) {
+                    remoteVideo.srcObject = stream;
+                }
+            }
+
+            removeRemoteVideo(peerId) {
+                const remoteVideo = document.getElementById(`remote-${peerId}`);
+                if (remoteVideo) {
+                    remoteVideo.remove();
                 }
             }
 
@@ -884,6 +1149,30 @@
                 }
             }
 
+            stopScreenShare() {
+                if (this.screenStream) {
+                    this.screenStream.getTracks().forEach(track => track.stop());
+                    this.screenStream = null;
+                }
+                
+                this.isSharingScreen = false;
+                document.getElementById('screenShareBtn').classList.remove('active');
+                
+                // Switch back to camera
+                if (this.localStream) {
+                    const videoTrack = this.localStream.getVideoTracks()[0];
+                    this.peerConnections.forEach((pc, targetId) => {
+                        const sender = pc.getSenders().find(s => 
+                            s.track && s.track.kind === 'video'
+                        );
+                        if (sender && videoTrack) {
+                            sender.replaceTrack(videoTrack);
+                        }
+                    });
+                }
+                this.showToast('Screen sharing stopped', 'info');
+            }
+
             // UI Management Methods
             showApp() {
                 document.getElementById('authScreen').style.display = 'none';
@@ -918,6 +1207,114 @@
                 remoteVideos.forEach(video => video.remove());
             }
 
+            showIncomingCallModal(from) {
+                document.getElementById('callerInfo').textContent = `User ${from} is calling you...`;
+                document.getElementById('incomingCallModal').style.display = 'flex';
+                document.getElementById('overlay').style.display = 'block';
+            }
+
+            hideIncomingCallModal() {
+                document.getElementById('incomingCallModal').style.display = 'none';
+                document.getElementById('overlay').style.display = 'none';
+            }
+
+            toggleDialer() {
+                const dialer = document.getElementById('dialerModal');
+                if (dialer.style.display === 'flex') {
+                    dialer.style.display = 'none';
+                    document.getElementById('overlay').style.display = 'none';
+                } else {
+                    dialer.style.display = 'flex';
+                    document.getElementById('overlay').style.display = 'block';
+                }
+            }
+
+            closeDialer() {
+                document.getElementById('dialerModal').style.display = 'none';
+                document.getElementById('overlay').style.display = 'none';
+            }
+
+            toggleStats() {
+                const statsPanel = document.querySelector('.stats-panel');
+                if (statsPanel.style.display === 'none') {
+                    statsPanel.style.display = 'block';
+                } else {
+                    statsPanel.style.display = 'none';
+                }
+            }
+
+            // Stats and Monitoring
+            startStatsCollection() {
+                this.statsInterval = setInterval(() => {
+                    this.updateConnectionStats();
+                }, 2000);
+            }
+
+            updateConnectionStats() {
+                const statsElement = document.getElementById('connectionStats');
+                if (!statsElement) return;
+
+                const stats = {
+                    'Peer Connections': this.peerConnections.size,
+                    'Data Channels': this.dataChannels.size,
+                    'Local Stream': this.localStream ? 'Active' : 'Inactive',
+                    'Screen Share': this.isSharingScreen ? 'Active' : 'Inactive',
+                    'Call Status': this.isInCall ? 'In Call' : 'Ready'
+                };
+
+                statsElement.innerHTML = Object.entries(stats)
+                    .map(([key, value]) => `
+                        <div class="stats-row">
+                            <span>${key}:</span>
+                            <span>${value}</span>
+                        </div>
+                    `).join('');
+            }
+
+            startConnectionMonitoring(pc, targetId) {
+                // Monitor connection quality
+                setInterval(async () => {
+                    if (pc.connectionState === 'connected') {
+                        await this.updateConnectionQuality(pc, targetId);
+                    }
+                }, 5000);
+            }
+
+            async updateConnectionQuality(pc, targetId) {
+                try {
+                    const stats = await pc.getStats();
+                    let packetsLost = 0;
+                    let packetsReceived = 0;
+                    
+                    stats.forEach(report => {
+                        if (report.type === 'inbound-rtp' && report.mediaType === 'video') {
+                            packetsLost += report.packetsLost || 0;
+                            packetsReceived += report.packetsReceived || 1;
+                        }
+                    });
+                    
+                    const lossRate = packetsLost / (packetsReceived + packetsLost);
+                    let quality = 'excellent';
+                    
+                    if (lossRate > 0.1) quality = 'poor';
+                    else if (lossRate > 0.05) quality = 'fair';
+                    else if (lossRate > 0.02) quality = 'good';
+                    
+                    const qualityElement = document.getElementById(`connection-quality-${targetId}`);
+                    if (qualityElement) {
+                        qualityElement.textContent = quality.charAt(0).toUpperCase() + quality.slice(1);
+                        qualityElement.className = `connection-quality quality-${quality}`;
+                    }
+                } catch (error) {
+                    console.error('Error getting connection stats:', error);
+                }
+            }
+
+            updateCallStatus(status) {
+                // Update call status in UI if needed
+                console.log('Call status:', status);
+            }
+
             // Utility Methods
             generateUniqueId() {
                 return Math.random().toString(36).substr(2, 9).toUpperCase();
@@ -948,20 +1345,26 @@
                 }, duration);
             }
 
-            // Placeholder methods for demo - implement based on your backend
+            copyUserId() {
+                if (!this.userUniqueId) {
+                    this.showToast('User ID not available', 'error');
+                    return;
+                }
+                navigator.clipboard.writeText(this.userUniqueId).then(() => {
+                    this.showToast('User ID copied to clipboard!', 'success');
+                }).catch(() => {
+                    this.showToast('Failed to copy user ID', 'error');
+                });
+            }
+
+            // Placeholder methods for demo
             async simulateRegistration(username, email, password) {
-                // Simulate API call delay
                 await new Promise(resolve => setTimeout(resolve, 1000));
-                
-                // In a real app, you'd make an API call to your backend
                 console.log('Registration simulation:', { username, email });
             }
 
             async simulateLogin(email, password) {
-                // Simulate API call delay
                 await new Promise(resolve => setTimeout(resolve, 1000));
-                
-                // In a real app, you'd make an API call to your backend
                 console.log('Login simulation:', { email });
             }
 
@@ -1020,9 +1423,6 @@
             clearUserSession() {
                 localStorage.removeItem('webrtc_session');
             }
-
-            // More methods would be implemented here for complete functionality...
-            // For brevity, I've shown the core architecture
         }
 
         // Signaling Service
@@ -1067,6 +1467,11 @@
                 await this.sendMessage(message);
             }
 
+            async sendCallEnded(to) {
+                const message = { type: 'call-ended', to };
+                await this.sendMessage(message);
+            }
+
             async sendMessage(message) {
                 if (!this.isConnected) {
                     this.messageQueue.push(message);
@@ -1075,8 +1480,6 @@
 
                 // Simulate WebSocket send
                 console.log('Signaling message sent:', message);
-                
-                // In a real app, you'd use: this.ws.send(JSON.stringify(message));
             }
 
             processMessageQueue() {
@@ -1095,36 +1498,6 @@
             }
         }
 
-        // SFU Client
-        class SFUClient {
-            constructor() {
-                this.ws = null;
-                this.roomId = null;
-                this.producers = new Map();
-                this.consumers = new Map();
-            }
-
-            async joinRoom(roomId) {
-                this.roomId = roomId;
-                // SFU implementation would go here
-                console.log('Joined SFU room:', roomId);
-            }
-
-            async produce(stream) {
-                // SFU media production implementation
-                console.log('Producing stream to SFU');
-            }
-
-            async consume(producerId) {
-                // SFU media consumption implementation
-                console.log('Consuming stream from SFU:', producerId);
-            }
-
-            disconnect() {
-                // Clean up SFU connection
-            }
-        }
-
         // Observability
         class Observability {
             constructor() {
@@ -1139,44 +1512,28 @@
             }
 
             initialize() {
-                // Set up performance monitoring
                 this.setupPerformanceMonitoring();
-                
-                // Set up WebRTC stats
-                this.setupWebRTCStats();
-                
-                // Set up error tracking
                 this.setupErrorTracking();
             }
 
             log(category, message, data = null) {
                 const timestamp = new Date().toISOString();
                 console.log(`[${timestamp}] [${category}] ${message}`, data || '');
-                
-                // In production, send to your logging service
             }
 
             error(category, message, error) {
                 this.metrics[`${category.toLowerCase()}Errors`]++;
                 this.log(category, `ERROR: ${message}`, error);
-                
-                // Send to error tracking service
             }
 
             metric(name, value) {
                 this.metrics[name] = value;
-                // Send to metrics service
             }
 
             setupPerformanceMonitoring() {
-                // Monitor page performance
                 if ('performance' in window) {
                     performance.mark('app-start');
                 }
-            }
-
-            setupWebRTCStats() {
-                // WebRTC stats collection would be implemented here
             }
 
             setupErrorTracking() {
@@ -1196,24 +1553,6 @@
 
         // Initialize the application
         const app = new WebRTCApp();
-
-        // Global functions for HTML onclick handlers
-        function showLogin() { app.showLogin(); }
-        function showRegister() { app.showRegister(); }
-        function login() { app.login(); }
-        function register() { app.register(); }
-        function logout() { app.logout(); }
-        function toggleMic() { app.toggleMic(); }
-        function toggleVideo() { app.toggleVideo(); }
-        function toggleScreenShare() { app.toggleScreenShare(); }
-        function hangUp() { app.hangUp(); }
-        function acceptCall() { app.acceptCall(); }
-        function rejectCall() { app.rejectCall(); }
-        function copyUserId() { app.copyUserId(); }
-        function initiateCall(type) { app.initiateCall(type); }
-
-        // Note: The complete implementation would include all the missing methods
-        // This provides the architectural foundation for a production-ready WebRTC app
     </script>
 </body>
 </html>
