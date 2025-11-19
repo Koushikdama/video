@@ -118,6 +118,12 @@
             background: var(--danger);
         }
 
+        .btn-small {
+            padding: 8px 15px;
+            font-size: 14px;
+            width: auto;
+        }
+
         /* Application Styles */
         .app-container {
             background: white;
@@ -277,6 +283,12 @@
             border-radius: 8px;
             margin-bottom: 8px;
             background: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .participant-item:hover {
+            background: #e9ecef;
         }
 
         /* Toast Notifications */
@@ -454,23 +466,35 @@
                                     <code id="displayUserId">0000000</code>
                                 </div>
                             </div>
-                            <button class="control-btn" onclick="app.copyUserId()" title="Copy ID">
+                            <button class="btn-small" onclick="app.copyUserId()" title="Copy ID" style="background: none; border: 1px solid var(--primary); color: var(--primary);">
                                 <i class="fas fa-copy"></i>
                             </button>
                         </div>
                     </div>
 
                     <div class="participants-list">
-                        <h4>Online Participants</h4>
+                        <h4>Online Users</h4>
                         <div id="participantsList">
-                            <!-- Participants will be populated here -->
+                            <div class="loading">
+                                <div class="spinner"></div>
+                                <span>Loading users...</span>
+                            </div>
                         </div>
+                    </div>
+
+                    <div class="call-actions" style="margin-top: 20px;">
+                        <button class="btn btn-success" onclick="app.toggleDialer()">
+                            <i class="fas fa-phone"></i> Start Call
+                        </button>
                     </div>
 
                     <div class="stats-panel">
                         <h4>Connection Stats</h4>
                         <div id="connectionStats">
-                            <!-- Stats will be populated here -->
+                            <div class="stats-row">
+                                <span>Status:</span>
+                                <span>Ready</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -517,7 +541,7 @@
     <div id="dialerModal" class="modal" style="display: none;">
         <div class="modal-content">
             <h3>Start a Call</h3>
-            <input type="text" id="dialInput" placeholder="Enter Participant ID" maxlength="7">
+            <input type="text" id="dialInput" placeholder="Enter User ID" maxlength="7">
             <div class="modal-buttons">
                 <button class="btn btn-success" onclick="app.initiateCall('video')">
                     <i class="fas fa-video"></i> Video Call
@@ -535,8 +559,37 @@
     <!-- Overlay -->
     <div class="overlay" id="overlay" style="display: none;"></div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.14.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.14.0/firebase-auth-compat.js"></script>
+
     <script>
-        // Enhanced WebRTC Configuration with multiple STUN/TURN servers
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC4PF__jAZuPBZw6rqheI2gokZW-WtxwDg",
+            authDomain: "video-call-1a584.firebaseapp.com",
+            projectId: "video-call-1a584",
+            storageBucket: "video-call-1a584.firebasestorage.app",
+            messagingSenderId: "537253207694",
+            appId: "1:537253207694:web:f8222f7a1a4d4c5f16f3df",
+        };
+
+        // Initialize Firebase
+        let firebaseApp;
+        let db;
+        let auth;
+
+        try {
+            firebaseApp = firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            auth = firebase.auth();
+            console.log("Firebase initialized successfully");
+        } catch (error) {
+            console.error("Firebase initialization error:", error);
+        }
+
+        // Enhanced WebRTC Configuration
         const RTC_CONFIG = {
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
@@ -576,6 +629,7 @@
                 this.statsInterval = null;
                 this.signaling = new SignalingService();
                 this.observability = new Observability();
+                this.usersUnsubscribe = null;
                 
                 this.initializeApp();
             }
@@ -622,40 +676,11 @@
             }
 
             setupEventListeners() {
-                // Global keyboard shortcuts
                 document.addEventListener('keydown', (e) => {
-                    if (e.ctrlKey || e.metaKey) {
-                        switch(e.key) {
-                            case 'd': e.preventDefault(); this.toggleDialer(); break;
-                            case 'm': e.preventDefault(); this.toggleMic(); break;
-                            case 'v': e.preventDefault(); this.toggleVideo(); break;
-                            case 's': e.preventDefault(); this.toggleScreenShare(); break;
-                        }
-                    }
-                    
                     if (e.key === 'Escape') {
                         this.hangUp();
+                        this.closeDialer();
                     }
-                });
-
-                // Window visibility change
-                document.addEventListener('visibilitychange', () => {
-                    if (document.hidden) {
-                        this.observability.log('APP', 'Window hidden');
-                    } else {
-                        this.observability.log('APP', 'Window visible');
-                    }
-                });
-
-                // Online/offline detection
-                window.addEventListener('online', () => {
-                    this.showToast('Connection restored', 'success');
-                    this.observability.log('NETWORK', 'Online');
-                });
-
-                window.addEventListener('offline', () => {
-                    this.showToast('Connection lost', 'error');
-                    this.observability.log('NETWORK', 'Offline');
                 });
             }
 
@@ -682,15 +707,35 @@
                 try {
                     this.showToast('Creating account...', 'info');
                     
-                    // In a real app, you'd call your backend API
-                    await this.simulateRegistration(username, email, password);
-                    
-                    this.showToast('Account created successfully!', 'success');
-                    this.showLogin();
+                    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                    const user = userCredential.user;
+
+                    // Generate unique ID
+                    this.userUniqueId = this.generateUniqueId();
+
+                    await db.collection('users').doc(user.uid).set({
+                        username: username,
+                        email: email,
+                        uniqueId: this.userUniqueId,
+                        online: true,
+                        lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    this.currentUser = {
+                        uid: user.uid,
+                        username: username,
+                        email: email,
+                        uniqueId: this.userUniqueId
+                    };
+
+                    this.saveUserSession(this.currentUser);
+                    this.showApp();
+                    this.showToast('Account created successfully! Your ID: ' + this.userUniqueId, 'success');
                     
                 } catch (error) {
+                    console.error('Registration error:', error);
                     this.showToast(`Registration failed: ${error.message}`, 'error');
-                    this.observability.error('AUTH', 'Registration failed', error);
                 }
             }
 
@@ -706,40 +751,74 @@
                 try {
                     this.showToast('Signing in...', 'info');
                     
-                    // Simulate login - replace with actual authentication
-                    await this.simulateLogin(email, password);
+                    const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                    const user = userCredential.user;
+
+                    const userDoc = await db.collection('users').doc(user.uid).get();
+                    if (!userDoc.exists) {
+                        this.showToast('User not found.', 'error');
+                        return;
+                    }
+
+                    const userData = userDoc.data();
                     
-                    this.userUniqueId = this.generateUniqueId();
+                    if (!userData.uniqueId) {
+                        this.userUniqueId = this.generateUniqueId();
+                        await db.collection('users').doc(user.uid).update({
+                            uniqueId: this.userUniqueId
+                        });
+                    } else {
+                        this.userUniqueId = userData.uniqueId;
+                    }
+
                     this.currentUser = {
-                        username: email.split('@')[0],
-                        email: email,
+                        uid: user.uid,
+                        username: userData.username,
+                        email: user.email,
                         uniqueId: this.userUniqueId
                     };
 
                     this.saveUserSession(this.currentUser);
+
+                    // Update user status to online
+                    await db.collection('users').doc(user.uid).update({
+                        online: true,
+                        lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
                     this.showApp();
-                    this.showToast(`Welcome back! Your ID: ${this.userUniqueId}`, 'success');
+                    this.showToast('Login successful! Your ID: ' + this.userUniqueId, 'success');
                     
                 } catch (error) {
+                    console.error('Login error:', error);
                     this.showToast(`Login failed: ${error.message}`, 'error');
-                    this.observability.error('AUTH', 'Login failed', error);
                 }
             }
 
             logout() {
                 this.showToast('Signing out...', 'info');
                 
-                // Clean up resources
+                if (this.currentUser && this.currentUser.uid) {
+                    db.collection('users').doc(this.currentUser.uid).update({
+                        online: false,
+                        lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+                    }).catch(error => console.error("Error updating user status:", error));
+                }
+
+                if (this.usersUnsubscribe) {
+                    this.usersUnsubscribe();
+                }
+
                 this.hangUp();
                 this.stopLocalStream();
                 this.signaling.disconnect();
                 
-                // Clear session
                 this.clearUserSession();
                 this.currentUser = null;
                 this.userUniqueId = null;
                 
-                // Show auth screen
+                auth.signOut();
+                
                 document.getElementById('authScreen').style.display = 'flex';
                 document.getElementById('appScreen').style.display = 'none';
                 
@@ -748,21 +827,19 @@
                 }, 500);
             }
 
-            // WebRTC Methods - IMPLEMENTED MISSING METHODS
+            // WebRTC Methods
             async startLocalStream() {
                 try {
                     const constraints = {
                         video: {
                             width: { ideal: 1280, min: 640 },
                             height: { ideal: 720, min: 480 },
-                            frameRate: { ideal: 30, min: 15 },
-                            facingMode: 'user'
+                            frameRate: { ideal: 30, min: 15 }
                         },
                         audio: {
                             echoCancellation: true,
                             noiseSuppression: true,
-                            autoGainControl: true,
-                            channelCount: 1
+                            autoGainControl: true
                         }
                     };
 
@@ -773,21 +850,12 @@
                 } catch (error) {
                     this.observability.error('MEDIA', 'Failed to start local stream', error);
                     this.showToast('Failed to access camera/microphone', 'error');
-                    
-                    // Try audio only as fallback
-                    try {
-                        this.localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                        this.showToast('Video unavailable, audio only mode', 'warning');
-                    } catch (audioError) {
-                        this.observability.error('MEDIA', 'Audio fallback failed', audioError);
-                    }
                 }
             }
 
             addLocalVideo() {
                 const videoGrid = document.getElementById('videoGrid');
                 
-                // Remove existing local video if present
                 const existingLocal = videoGrid.querySelector('.video-participant.local');
                 if (existingLocal) {
                     existingLocal.remove();
@@ -799,13 +867,12 @@
                     <video id="localVideo" autoplay playsinline muted></video>
                     <div class="participant-info">
                         <div class="participant-name">You (Local)</div>
-                        <div class="connection-quality quality-excellent" id="localConnectionQuality">Excellent</div>
+                        <div class="connection-quality quality-excellent">Excellent</div>
                     </div>
                 `;
 
                 videoGrid.appendChild(localParticipant);
                 
-                // Set the video source
                 const localVideo = document.getElementById('localVideo');
                 if (localVideo && this.localStream) {
                     localVideo.srcObject = this.localStream;
@@ -840,18 +907,7 @@
                     pc.onicecandidate = (event) => this.handleIceCandidate(targetId, event);
                     pc.onconnectionstatechange = () => this.handleConnectionStateChange(targetId, pc);
                     pc.oniceconnectionstatechange = () => this.handleIceConnectionStateChange(targetId, pc);
-                    pc.onsignalingstatechange = () => this.observability.log('RTC', `Signaling state for ${targetId}: ${pc.signalingState}`);
                     
-                    // Create data channel for messaging
-                    if (isInitiator) {
-                        const dc = pc.createDataChannel('chat', { ordered: true });
-                        this.setupDataChannel(targetId, dc);
-                    } else {
-                        pc.ondatachannel = (event) => {
-                            this.setupDataChannel(targetId, event.channel);
-                        };
-                    }
-
                     this.peerConnections.set(targetId, pc);
                     this.observability.log('RTC', `Peer connection created for ${targetId}`);
                     
@@ -880,21 +936,13 @@
             handleConnectionStateChange(targetId, pc) {
                 const state = pc.connectionState;
                 console.log(`Connection state with ${targetId}: ${state}`);
-                this.updateCallStatus(state);
                 
                 if (state === 'connected') {
                     this.showToast('Call connected successfully!', 'success');
-                    this.startConnectionMonitoring(pc, targetId);
-                } else if (state === 'failed' || state === 'disconnected') {
-                    console.error(`Connection ${state} with ${targetId}`);
-                    if (pc.connectionState === 'failed') {
-                        setTimeout(() => {
-                            if (pc.connectionState === 'failed') {
-                                console.log('Attempting to restart ICE for:', targetId);
-                                pc.restartIce();
-                            }
-                        }, 2000);
-                    }
+                } else if (state === 'failed') {
+                    this.showToast('Connection failed', 'error');
+                } else if (state === 'disconnected') {
+                    this.showToast('Connection lost', 'warning');
                 }
             }
 
@@ -902,31 +950,18 @@
                 console.log(`ICE connection state with ${targetId}: ${pc.iceConnectionState}`);
             }
 
-            setupDataChannel(targetId, channel) {
-                channel.onopen = () => {
-                    console.log(`Data channel with ${targetId} opened`);
-                    this.showToast(`Data channel with ${targetId} connected`, 'info');
-                };
-                
-                channel.onmessage = (event) => {
-                    console.log(`Message from ${targetId}:`, event.data);
-                    // Handle data channel messages
-                };
-                
-                channel.onclose = () => {
-                    console.log(`Data channel with ${targetId} closed`);
-                };
-                
-                this.dataChannels.set(targetId, channel);
-            }
-
             async initiateCall(callType = 'video', targetId = null) {
                 if (!targetId) {
                     targetId = document.getElementById('dialInput').value.trim();
                     if (!targetId) {
-                        this.showToast('Please enter a participant ID', 'error');
+                        this.showToast('Please enter a user ID', 'error');
                         return;
                     }
+                }
+
+                if (targetId === this.userUniqueId) {
+                    this.showToast('Cannot call yourself', 'error');
+                    return;
                 }
 
                 if (this.isInCall) {
@@ -952,6 +987,7 @@
                     
                     this.isInCall = true;
                     this.showCallInterface();
+                    this.closeDialer();
                     this.observability.log('CALL', `Call initiated to ${targetId}`);
                     
                 } catch (error) {
@@ -978,7 +1014,7 @@
                     const { from, offer } = this.incomingCallData;
                     
                     const pc = await this.createPeerConnection(from, false);
-                    await pc.setRemoteDescription(offer);
+                    await pc.setRemoteDescription(new RTCSessionDescription(offer));
                     
                     const answer = await pc.createAnswer();
                     await pc.setLocalDescription(answer);
@@ -1010,11 +1046,11 @@
             hangUp() {
                 console.log('Hanging up call');
                 
-                // Send call-ended signal to all peers
                 this.peerConnections.forEach((pc, targetId) => {
                     this.signaling.sendCallEnded(targetId);
-                    this.removePeerConnection(targetId);
+                    pc.close();
                 });
+                this.peerConnections.clear();
 
                 if (this.statsInterval) {
                     clearInterval(this.statsInterval);
@@ -1025,27 +1061,9 @@
                 this.showToast('Call ended', 'info');
             }
 
-            removePeerConnection(targetId) {
-                const pc = this.peerConnections.get(targetId);
-                if (pc) {
-                    pc.close();
-                    this.peerConnections.delete(targetId);
-                }
-                
-                const dc = this.dataChannels.get(targetId);
-                if (dc) {
-                    dc.close();
-                    this.dataChannels.delete(targetId);
-                }
-                
-                // Remove remote video
-                this.removeRemoteVideo(targetId);
-            }
-
             addRemoteVideo(peerId, stream) {
                 const videoGrid = document.getElementById('videoGrid');
                 
-                // Remove existing remote video if present
                 this.removeRemoteVideo(peerId);
 
                 const remoteParticipant = document.createElement('div');
@@ -1055,13 +1073,12 @@
                     <video id="remote-video-${peerId}" autoplay playsinline></video>
                     <div class="participant-info">
                         <div class="participant-name">User ${peerId}</div>
-                        <div class="connection-quality" id="connection-quality-${peerId}">Connecting...</div>
+                        <div class="connection-quality">Connecting...</div>
                     </div>
                 `;
 
                 videoGrid.appendChild(remoteParticipant);
                 
-                // Set the video source
                 const remoteVideo = document.getElementById(`remote-video-${peerId}`);
                 if (remoteVideo && stream) {
                     remoteVideo.srcObject = stream;
@@ -1089,7 +1106,6 @@
                         '<i class="fas fa-microphone-slash"></i>';
                     
                     this.showToast(audioTrack.enabled ? 'Microphone on' : 'Microphone off', 'info', 2000);
-                    this.observability.log('MEDIA', `Microphone ${audioTrack.enabled ? 'enabled' : 'disabled'}`);
                 }
             }
 
@@ -1106,7 +1122,6 @@
                         '<i class="fas fa-video-slash"></i>';
                     
                     this.showToast(videoTrack.enabled ? 'Camera on' : 'Camera off', 'info', 2000);
-                    this.observability.log('MEDIA', `Camera ${videoTrack.enabled ? 'enabled' : 'disabled'}`);
                 }
             }
 
@@ -1128,7 +1143,6 @@
                     this.isSharingScreen = true;
                     document.getElementById('screenShareBtn').classList.add('active');
                     
-                    // Replace video track in all peer connections
                     const videoTrack = this.screenStream.getVideoTracks()[0];
                     this.peerConnections.forEach((pc, targetId) => {
                         const sender = pc.getSenders().find(s => 
@@ -1141,10 +1155,8 @@
 
                     this.screenStream.getTracks()[0].onended = () => this.stopScreenShare();
                     this.showToast('Screen sharing started', 'success');
-                    this.observability.log('MEDIA', 'Screen sharing started');
                     
                 } catch (error) {
-                    this.observability.error('MEDIA', 'Failed to start screen share', error);
                     this.showToast('Failed to start screen sharing', 'error');
                 }
             }
@@ -1158,7 +1170,6 @@
                 this.isSharingScreen = false;
                 document.getElementById('screenShareBtn').classList.remove('active');
                 
-                // Switch back to camera
                 if (this.localStream) {
                     const videoTrack = this.localStream.getVideoTracks()[0];
                     this.peerConnections.forEach((pc, targetId) => {
@@ -1189,19 +1200,16 @@
                 
                 this.startLocalStream();
                 this.startStatsCollection();
+                this.setupUsersListener();
+                this.signaling.connect(this.userUniqueId);
             }
 
             showCallInterface() {
                 document.getElementById('videoGrid').style.display = 'grid';
-                this.updateCallStatus('connected');
             }
 
             hideCallInterface() {
                 this.isInCall = false;
-                document.getElementById('videoGrid').style.display = 'none';
-                this.updateCallStatus('ready');
-                
-                // Clear all remote videos
                 const videoGrid = document.getElementById('videoGrid');
                 const remoteVideos = videoGrid.querySelectorAll('.video-participant:not(.local)');
                 remoteVideos.forEach(video => video.remove());
@@ -1221,8 +1229,7 @@
             toggleDialer() {
                 const dialer = document.getElementById('dialerModal');
                 if (dialer.style.display === 'flex') {
-                    dialer.style.display = 'none';
-                    document.getElementById('overlay').style.display = 'none';
+                    this.closeDialer();
                 } else {
                     dialer.style.display = 'flex';
                     document.getElementById('overlay').style.display = 'block';
@@ -1236,11 +1243,43 @@
 
             toggleStats() {
                 const statsPanel = document.querySelector('.stats-panel');
-                if (statsPanel.style.display === 'none') {
-                    statsPanel.style.display = 'block';
-                } else {
-                    statsPanel.style.display = 'none';
-                }
+                statsPanel.style.display = statsPanel.style.display === 'none' ? 'block' : 'none';
+            }
+
+            // Users Management
+            setupUsersListener() {
+                this.usersUnsubscribe = db.collection('users')
+                    .where('online', '==', true)
+                    .onSnapshot(snapshot => {
+                        const participantsList = document.getElementById('participantsList');
+                        participantsList.innerHTML = '';
+                        
+                        snapshot.forEach(doc => {
+                            const user = doc.data();
+                            if (user.uniqueId !== this.userUniqueId) {
+                                const participantItem = document.createElement('div');
+                                participantItem.className = 'participant-item';
+                                participantItem.innerHTML = `
+                                    <div class="avatar">${user.username.charAt(0).toUpperCase()}</div>
+                                    <div style="flex: 1;">
+                                        <div>${user.username}</div>
+                                        <small>ID: ${user.uniqueId}</small>
+                                    </div>
+                                    <div class="call-actions">
+                                        <button class="btn-small" onclick="app.initiateCall('video', '${user.uniqueId}')" style="background: var(--success); color: white;">
+                                            <i class="fas fa-video"></i>
+                                        </button>
+                                        <button class="btn-small" onclick="app.initiateCall('audio', '${user.uniqueId}')" style="background: var(--primary); color: white;">
+                                            <i class="fas fa-phone"></i>
+                                        </button>
+                                    </div>
+                                `;
+                                participantsList.appendChild(participantItem);
+                            }
+                        });
+                    }, error => {
+                        console.error("Error in users listener:", error);
+                    });
             }
 
             // Stats and Monitoring
@@ -1256,10 +1295,10 @@
 
                 const stats = {
                     'Peer Connections': this.peerConnections.size,
-                    'Data Channels': this.dataChannels.size,
                     'Local Stream': this.localStream ? 'Active' : 'Inactive',
                     'Screen Share': this.isSharingScreen ? 'Active' : 'Inactive',
-                    'Call Status': this.isInCall ? 'In Call' : 'Ready'
+                    'Call Status': this.isInCall ? 'In Call' : 'Ready',
+                    'User ID': this.userUniqueId || 'Not set'
                 };
 
                 statsElement.innerHTML = Object.entries(stats)
@@ -1271,53 +1310,9 @@
                     `).join('');
             }
 
-            startConnectionMonitoring(pc, targetId) {
-                // Monitor connection quality
-                setInterval(async () => {
-                    if (pc.connectionState === 'connected') {
-                        await this.updateConnectionQuality(pc, targetId);
-                    }
-                }, 5000);
-            }
-
-            async updateConnectionQuality(pc, targetId) {
-                try {
-                    const stats = await pc.getStats();
-                    let packetsLost = 0;
-                    let packetsReceived = 0;
-                    
-                    stats.forEach(report => {
-                        if (report.type === 'inbound-rtp' && report.mediaType === 'video') {
-                            packetsLost += report.packetsLost || 0;
-                            packetsReceived += report.packetsReceived || 1;
-                        }
-                    });
-                    
-                    const lossRate = packetsLost / (packetsReceived + packetsLost);
-                    let quality = 'excellent';
-                    
-                    if (lossRate > 0.1) quality = 'poor';
-                    else if (lossRate > 0.05) quality = 'fair';
-                    else if (lossRate > 0.02) quality = 'good';
-                    
-                    const qualityElement = document.getElementById(`connection-quality-${targetId}`);
-                    if (qualityElement) {
-                        qualityElement.textContent = quality.charAt(0).toUpperCase() + quality.slice(1);
-                        qualityElement.className = `connection-quality quality-${quality}`;
-                    }
-                } catch (error) {
-                    console.error('Error getting connection stats:', error);
-                }
-            }
-
-            updateCallStatus(status) {
-                // Update call status in UI if needed
-                console.log('Call status:', status);
-            }
-
             // Utility Methods
             generateUniqueId() {
-                return Math.random().toString(36).substr(2, 9).toUpperCase();
+                return Math.floor(1000000 + Math.random() * 9000000).toString();
             }
 
             showToast(message, type = 'info', duration = 5000) {
@@ -1355,17 +1350,6 @@
                 }).catch(() => {
                     this.showToast('Failed to copy user ID', 'error');
                 });
-            }
-
-            // Placeholder methods for demo
-            async simulateRegistration(username, email, password) {
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                console.log('Registration simulation:', { username, email });
-            }
-
-            async simulateLogin(email, password) {
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                console.log('Login simulation:', { email });
             }
 
             validateAuthInput(username, email, password) {
@@ -1425,75 +1409,127 @@
             }
         }
 
-        // Signaling Service
+        // Signaling Service with Firebase Firestore
         class SignalingService {
             constructor() {
-                this.ws = null;
-                this.reconnectAttempts = 0;
-                this.maxReconnectAttempts = 5;
-                this.messageQueue = [];
-                this.isConnected = false;
+                this.unsubscribe = null;
             }
 
-            async connect() {
-                return new Promise((resolve, reject) => {
-                    // In a real app, you'd connect to your WebSocket server
-                    // For demo, we'll simulate connection
-                    setTimeout(() => {
-                        this.isConnected = true;
-                        this.processMessageQueue();
-                        resolve();
-                    }, 500);
-                });
+            async connect(userId) {
+                if (!userId) return;
+
+                // Listen for incoming signaling messages
+                this.unsubscribe = db.collection('signaling')
+                    .where('to', '==', userId)
+                    .onSnapshot(snapshot => {
+                        snapshot.docChanges().forEach(change => {
+                            if (change.type === 'added') {
+                                const message = change.doc.data();
+                                console.log('Received signaling message:', message);
+                                this.handleSignalingMessage(message);
+                                
+                                // Remove the message after processing
+                                setTimeout(() => {
+                                    db.collection('signaling').doc(change.doc.id).delete()
+                                        .catch(error => console.error("Error deleting signaling message:", error));
+                                }, 1000);
+                            }
+                        });
+                    }, error => {
+                        console.error("Error in signaling listener:", error);
+                    });
+            }
+
+            handleSignalingMessage(message) {
+                if (!message.from || !message.type) return;
+
+                switch (message.type) {
+                    case 'offer':
+                        app.handleOffer(message.from, message.data);
+                        break;
+                    case 'answer':
+                        app.handleAnswer(message.from, message.data);
+                        break;
+                    case 'ice-candidate':
+                        app.handleIceCandidate(message.from, message.data);
+                        break;
+                    case 'call-rejected':
+                        app.showToast('Call was rejected', 'warning');
+                        app.hangUp();
+                        break;
+                    case 'call-ended':
+                        app.showToast('Call ended by remote user', 'info');
+                        app.hangUp();
+                        break;
+                }
             }
 
             async sendOffer(to, offer) {
-                const message = { type: 'offer', to, offer };
-                await this.sendMessage(message);
+                await this.sendMessage(to, 'offer', offer);
             }
 
             async sendAnswer(to, answer) {
-                const message = { type: 'answer', to, answer };
-                await this.sendMessage(message);
+                await this.sendMessage(to, 'answer', answer);
             }
 
             async sendIceCandidate(to, candidate) {
-                const message = { type: 'ice-candidate', to, candidate };
-                await this.sendMessage(message);
+                await this.sendMessage(to, 'ice-candidate', candidate);
             }
 
             async sendCallRejected(to, reason) {
-                const message = { type: 'call-rejected', to, reason };
-                await this.sendMessage(message);
+                await this.sendMessage(to, 'call-rejected', { reason });
             }
 
             async sendCallEnded(to) {
-                const message = { type: 'call-ended', to };
-                await this.sendMessage(message);
+                await this.sendMessage(to, 'call-ended', {});
             }
 
-            async sendMessage(message) {
-                if (!this.isConnected) {
-                    this.messageQueue.push(message);
-                    return;
+            async sendMessage(to, type, data) {
+                if (!app.userUniqueId) return;
+
+                const message = {
+                    from: app.userUniqueId,
+                    to: to,
+                    type: type,
+                    data: data,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                try {
+                    await db.collection('signaling').add(message);
+                    console.log(`Signaling message sent: ${type} to ${to}`);
+                } catch (error) {
+                    console.error("Error sending signaling message:", error);
                 }
-
-                // Simulate WebSocket send
-                console.log('Signaling message sent:', message);
             }
 
-            processMessageQueue() {
-                while (this.messageQueue.length > 0) {
-                    const message = this.messageQueue.shift();
-                    this.sendMessage(message);
+            async handleAnswer(from, answer) {
+                const pc = app.peerConnections.get(from);
+                if (pc) {
+                    try {
+                        await pc.setRemoteDescription(new RTCSessionDescription(answer));
+                        console.log('Remote description set successfully');
+                    } catch (error) {
+                        console.error('Error setting remote description:', error);
+                    }
+                }
+            }
+
+            async handleIceCandidate(from, candidate) {
+                const pc = app.peerConnections.get(from);
+                if (pc) {
+                    try {
+                        await pc.addIceCandidate(new RTCIceCandidate(candidate));
+                        console.log('ICE candidate added successfully');
+                    } catch (error) {
+                        console.error('Error adding ICE candidate:', error);
+                    }
                 }
             }
 
             disconnect() {
-                this.isConnected = false;
-                if (this.ws) {
-                    this.ws.close();
-                    this.ws = null;
+                if (this.unsubscribe) {
+                    this.unsubscribe();
                 }
             }
         }
@@ -1504,36 +1540,20 @@
                 this.metrics = {
                     callsInitiated: 0,
                     callsReceived: 0,
-                    callsConnected: 0,
-                    callsFailed: 0,
-                    mediaErrors: 0,
-                    signalingErrors: 0
+                    callsConnected: 0
                 };
             }
 
             initialize() {
-                this.setupPerformanceMonitoring();
                 this.setupErrorTracking();
             }
 
-            log(category, message, data = null) {
-                const timestamp = new Date().toISOString();
-                console.log(`[${timestamp}] [${category}] ${message}`, data || '');
+            log(category, message) {
+                console.log(`[${new Date().toISOString()}] [${category}] ${message}`);
             }
 
             error(category, message, error) {
-                this.metrics[`${category.toLowerCase()}Errors`]++;
-                this.log(category, `ERROR: ${message}`, error);
-            }
-
-            metric(name, value) {
-                this.metrics[name] = value;
-            }
-
-            setupPerformanceMonitoring() {
-                if ('performance' in window) {
-                    performance.mark('app-start');
-                }
+                console.error(`[${new Date().toISOString()}] [${category}] ${message}`, error);
             }
 
             setupErrorTracking() {
@@ -1544,10 +1564,6 @@
                 window.addEventListener('unhandledrejection', (event) => {
                     this.error('PROMISE', 'Unhandled promise rejection', event.reason);
                 });
-            }
-
-            getMetrics() {
-                return { ...this.metrics };
             }
         }
 
