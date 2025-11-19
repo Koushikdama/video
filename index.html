@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VideoCall Pro - Real-time Video Calling</title>
+    <title>VideoCall Pro - Secure Video Calling</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -36,7 +37,7 @@
             background: white;
             padding: 40px;
             border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 400px;
             text-align: center;
@@ -104,6 +105,14 @@
             background: #219a52;
         }
 
+        .btn-warning {
+            background: #f39c12;
+        }
+
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+
         .error-message {
             color: #e74c3c;
             background: #f8d7da;
@@ -123,20 +132,19 @@
         }
 
         .app-container {
-            display: none;
             background: white;
             border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         }
 
         .header {
-            background: #667eea;
-            color: white;
-            padding: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
         }
 
         .user-info {
@@ -148,151 +156,111 @@
         .avatar {
             width: 40px;
             height: 40px;
-            background: #764ba2;
             border-radius: 50%;
+            background: #667eea;
+            color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
             font-weight: bold;
         }
 
         .main-content {
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            height: 80vh;
+            display: flex;
+            min-height: 600px;
         }
 
         .users-panel {
-            background: #f8f9fa;
-            border-right: 1px solid #e1e5e9;
+            width: 300px;
+            border-right: 1px solid #e9ecef;
             padding: 20px;
-            overflow-y: auto;
         }
 
         .users-list h3 {
-            margin-bottom: 20px;
-            color: #667eea;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            margin-bottom: 15px;
+            color: #495057;
         }
 
         .user-item {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 15px;
+            padding: 12px;
             border-radius: 10px;
             margin-bottom: 10px;
-            cursor: pointer;
             transition: background 0.3s;
-            border: 2px solid transparent;
         }
 
         .user-item:hover {
-            background: #e9ecef;
-        }
-
-        .user-item.online {
-            background: #d4edda;
-            border-color: #28a745;
-        }
-
-        .user-item.offline {
-            opacity: 0.6;
             background: #f8f9fa;
         }
 
-        .user-item.in-call {
-            background: #fff3cd;
-            border-color: #ffc107;
+        .user-item.online {
+            border-left: 4px solid #28a745;
         }
 
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #28a745;
+        .user-item.offline {
+            border-left: 4px solid #6c757d;
+            opacity: 0.6;
         }
 
-        .user-item.offline .status-dot {
-            background: #6c757d;
-        }
-
-        .user-item.in-call .status-dot {
-            background: #ffc107;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
+        .user-item .avatar {
+            width: 35px;
+            height: 35px;
+            font-size: 14px;
+            margin-right: 10px;
         }
 
         .call-actions {
+            margin-left: auto;
             display: flex;
             gap: 5px;
-            margin-left: auto;
         }
 
         .call-btn {
+            background: none;
+            border: none;
             padding: 8px;
             border-radius: 50%;
-            border: none;
             cursor: pointer;
-            font-size: 14px;
-            transition: transform 0.2s;
-        }
-
-        .call-btn:hover {
-            transform: scale(1.1);
+            transition: background 0.3s;
         }
 
         .video-call {
-            background: #667eea;
-            color: white;
+            color: #28a745;
         }
 
         .audio-call {
-            background: #28a745;
-            color: white;
+            color: #007bff;
+        }
+
+        .call-btn:hover {
+            background: #e9ecef;
         }
 
         .call-interface {
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            background: #1a1a1a;
-            position: relative;
+            flex: 1;
             display: none;
+            flex-direction: column;
+            padding: 20px;
         }
 
         .video-container {
-            flex: 1;
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 10px;
+            gap: 20px;
+            flex: 1;
             margin-bottom: 20px;
         }
 
         .video-wrapper {
             position: relative;
+            background: #000;
             border-radius: 10px;
             overflow: hidden;
-            background: #000;
+            aspect-ratio: 16/9;
         }
 
-        .video-wrapper.local {
-            border: 3px solid #667eea;
-        }
-
-        .video-wrapper.remote {
-            border: 3px solid #28a745;
-        }
-
-        video {
+        .video-wrapper video {
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -300,9 +268,9 @@
 
         .video-label {
             position: absolute;
-            bottom: 10px;
+            top: 10px;
             left: 10px;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0, 0, 0, 0.7);
             color: white;
             padding: 5px 10px;
             border-radius: 15px;
@@ -313,7 +281,6 @@
             display: flex;
             justify-content: center;
             gap: 15px;
-            padding: 20px;
         }
 
         .control-btn {
@@ -321,7 +288,7 @@
             height: 60px;
             border-radius: 50%;
             border: none;
-            background: #495057;
+            background: #6c757d;
             color: white;
             font-size: 20px;
             cursor: pointer;
@@ -342,84 +309,122 @@
 
         .notification {
             position: fixed;
-            top: 20px;
-            right: 20px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            display: none;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
             z-index: 1000;
+            text-align: center;
             min-width: 300px;
-            animation: slideIn 0.3s ease-out;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
         }
 
         .notification-buttons {
             display: flex;
             gap: 10px;
-            margin-top: 15px;
+            justify-content: center;
+            margin-top: 20px;
         }
 
-        .connection-status {
+        .notification-buttons .btn {
+            width: auto;
+            padding: 10px 20px;
+        }
+
+        .dialer {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .dialer-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .dialer-input input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .call-type-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .user-id-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .user-id-display strong {
+            color: #667eea;
+            font-size: 18px;
+        }
+
+        .overlay {
             position: fixed;
-            bottom: 20px;
-            left: 20px;
-            padding: 10px 15px;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 999;
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .call-status {
+            text-align: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .user-id-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .user-id-badge {
+            background: #667eea;
+            color: white;
+            padding: 8px 15px;
             border-radius: 20px;
-            font-size: 12px;
-            z-index: 1000;
+            font-weight: bold;
+            font-size: 16px;
         }
 
-        .connected {
-            background: #28a745;
+        .connection-quality {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
             color: white;
-        }
-
-        .disconnected {
-            background: #e74c3c;
-            color: white;
-        }
-
-        .connecting {
-            background: #f39c12;
-            color: white;
-        }
-
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-
-            .users-panel {
-                display: none;
-            }
-
-            .video-container {
-                grid-template-columns: 1fr;
-            }
-
-            .controls {
-                flex-wrap: wrap;
-            }
-
-            .control-btn {
-                width: 50px;
-                height: 50px;
-            }
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
         }
     </style>
 </head>
+
 <body>
     <!-- Authentication Screens -->
     <div id="authScreen" class="auth-container">
@@ -427,32 +432,27 @@
             <div class="logo">
                 <i class="fas fa-video"></i> VideoCall Pro
             </div>
-            
+
             <div id="errorMessage" class="error-message"></div>
             <div id="successMessage" class="success-message"></div>
-            
+
             <div id="loginForm" class="auth-form">
-                <h2>Welcome to VideoCall Pro</h2>
-                <input type="text" id="loginUsername" placeholder="Enter your username" required>
-                <button class="btn" onclick="login()">Start Video Calling</button>
-                <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 10px;">
-                    <p style="font-size: 14px; color: #666; margin-bottom: 10px;">
-                        <strong>How to test:</strong>
-                    </p>
-                    <p style="font-size: 12px; color: #888;">
-                        1. Open this page on PC and mobile<br>
-                        2. Use different usernames<br>
-                        3. See real-time user list updates<br>
-                        4. Make test calls between devices
-                    </p>
-                </div>
+                <h2>Welcome Back</h2>
+                <input type="text" id="loginUsername" placeholder="Email" required>
+                <input type="password" id="loginPassword" placeholder="Password" required>
+                <button class="btn" onclick="login()">Sign In</button>
+                <button class="btn btn-secondary" onclick="showRegister()">Create Account</button>
+            </div>
+
+            <div id="registerForm" class="auth-form" style="display: none;">
+                <h2>Create Account</h2>
+                <input type="text" id="registerUsername" placeholder="Username" required>
+                <input type="email" id="registerEmail" placeholder="Email" required>
+                <input type="password" id="registerPassword" placeholder="Password" required>
+                <button class="btn" onclick="register()">Sign Up</button>
+                <button class="btn btn-secondary" onclick="showLogin()">Back to Login</button>
             </div>
         </div>
-    </div>
-
-    <!-- Connection Status -->
-    <div id="connectionStatus" class="connection-status" style="display: none;">
-        <i class="fas fa-wifi"></i> <span id="statusText">Connecting...</span>
     </div>
 
     <!-- Main Application -->
@@ -461,13 +461,16 @@
             <div class="header">
                 <div class="logo">
                     <i class="fas fa-video"></i> VideoCall Pro
-                    <span id="onlineCount" style="font-size: 12px; background: #28a745; color: white; padding: 2px 8px; border-radius: 10px; margin-left: 10px;">
-                        0 online
-                    </span>
                 </div>
                 <div class="user-info">
                     <div class="avatar" id="userAvatar">U</div>
-                    <span id="userName">User</span>
+                    <div>
+                        <div id="userName">User</div>
+                        <div class="user-id-section">
+                            <small>ID:</small>
+                            <span class="user-id-badge" id="userUniqueId">0000000</span>
+                        </div>
+                    </div>
                     <button class="btn btn-secondary" onclick="logout()" style="margin: 0 0 0 10px; padding: 8px 15px;">
                         <i class="fas fa-sign-out-alt"></i>
                     </button>
@@ -475,25 +478,61 @@
             </div>
 
             <div class="main-content">
-                <!-- Users List -->
+                <!-- Users List & Dialer -->
                 <div class="users-panel">
+                    <div class="user-id-display">
+                        <div style="margin-bottom: 10px;">Your Unique ID:</div>
+                        <div class="user-id-section">
+                            <strong id="displayUserId">0000000</strong>
+                            <button onclick="copyUserId()" style="padding: 5px 10px; background: none; border: 1px solid #667eea; border-radius: 5px; cursor: pointer;">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
+                        <div style="font-size: 12px; color: #666; margin-top: 10px;">
+                            Share this ID with friends to receive calls
+                        </div>
+                    </div>
+
+                    <div class="dialer">
+                        <div class="dialer-input">
+                            <input type="text" id="dialInput" placeholder="Enter 7-digit ID" maxlength="7">
+                            <button class="btn" onclick="validateAndCall()">
+                                <i class="fas fa-phone"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="call-type-buttons">
+                            <button class="btn btn-success" onclick="initiateCall('video')">
+                                <i class="fas fa-video"></i> Video Call
+                            </button>
+                            <button class="btn" onclick="initiateCall('audio')">
+                                <i class="fas fa-phone"></i> Audio Call
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="loading" id="usersLoading">
+                        <i class="fas fa-spinner fa-spin"></i> Loading users...
+                    </div>
+
                     <div class="users-list">
-                        <h3>
-                            <i class="fas fa-users"></i> Online Users
-                            <span id="usersCount">(0)</span>
-                        </h3>
+                        <h3><i class="fas fa-users"></i> Online Users</h3>
                         <div id="usersList">
-                            <!-- Users will be populated via WebSocket -->
+                            <!-- Users will be populated here -->
                         </div>
                     </div>
                 </div>
 
                 <!-- Video Call Interface -->
                 <div class="call-interface">
+                    <div class="call-status" id="callStatus">
+                        Ready to call
+                    </div>
                     <div class="video-container" id="videoContainer">
                         <div class="video-wrapper local">
                             <video id="localVideo" autoplay playsinline muted></video>
                             <div class="video-label">You</div>
+                            <div class="connection-quality" id="localConnectionQuality">Local</div>
                         </div>
                         <!-- Remote videos will be added here dynamically -->
                     </div>
@@ -518,8 +557,8 @@
     </div>
 
     <!-- Incoming Call Notification -->
-    <div id="incomingCallNotification" class="notification">
-        <h4><i class="fas fa-phone-volume"></i> Incoming Call</h4>
+    <div id="incomingCallNotification" class="notification" style="display: none;">
+        <h4>Incoming Call</h4>
         <p id="callerInfo">User is calling you...</p>
         <div class="notification-buttons">
             <button class="btn btn-success" onclick="acceptCall()">
@@ -531,30 +570,64 @@
         </div>
     </div>
 
-    <!-- Incoming Call Sound -->
-    <audio id="incomingCallSound" loop>
-        <source src="https://assets.mixkit.co/active_storage/sfx/250/250-preview.mp3" type="audio/mpeg">
-    </audio>
+    <!-- Overlay for notifications -->
+    <div class="overlay" id="overlay"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.14.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.14.0/firebase-auth-compat.js"></script>
 
     <script>
-        // WebSocket server configuration
-        // Using a free WebSocket echo server for demonstration
-        // In production, you would use your own WebSocket server
-        const WS_SERVER_URL = 'wss://websocket-echo.com/';
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC4PF__jAZuPBZw6rqheI2gokZW-WtxwDg",
+            authDomain: "video-call-1a584.firebaseapp.com",
+            projectId: "video-call-1a584",
+            storageBucket: "video-call-1a584.firebasestorage.app",
+            messagingSenderId: "537253207694",
+            appId: "1:537253207694:web:f8222f7a1a4d4c5f16f3df",
+        };
+
+        // Initialize Firebase
+        let firebaseApp;
+        let db;
+        let auth;
+
+        try {
+            firebaseApp = firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            auth = firebase.auth();
+            console.log("Firebase initialized successfully");
+        } catch (error) {
+            console.error("Firebase initialization error:", error);
+            showError("Firebase configuration issue.");
+        }
 
         // Global variables
-        let ws = null;
-        let localStream = null;
-        let screenStream = null;
-        let peerConnections = {};
+        let localStream, screenStream, peerConnections = {};
         let currentUser = null;
         let currentCall = null;
         let isInCall = false;
         let isSharingScreen = false;
         let incomingCallData = null;
-        let onlineUsers = new Map();
-        let reconnectAttempts = 0;
-        const maxReconnectAttempts = 5;
+        let activeCallData = null;
+        let userUniqueId = null;
+        let signalingUnsubscribe = null;
+        let connectionCheckInterval = null;
+
+        // Improved WebRTC Configuration with TURN servers
+        const rtcConfig = {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' },
+                { urls: 'stun:stun2.l.google.com:19302' },
+                { urls: 'stun:stun3.l.google.com:19302' },
+                { urls: 'stun:stun4.l.google.com:19302' }
+            ],
+            iceCandidatePoolSize: 10,
+            bundlePolicy: 'max-bundle',
+            rtcpMuxPolicy: 'require'
+        };
 
         // DOM Elements
         const authScreen = document.getElementById('authScreen');
@@ -562,403 +635,34 @@
         const usersList = document.getElementById('usersList');
         const videoContainer = document.getElementById('videoContainer');
         const incomingCallNotification = document.getElementById('incomingCallNotification');
-        const incomingCallSound = document.getElementById('incomingCallSound');
         const errorMessage = document.getElementById('errorMessage');
         const successMessage = document.getElementById('successMessage');
-        const connectionStatus = document.getElementById('connectionStatus');
-        const statusText = document.getElementById('statusText');
-        const onlineCount = document.getElementById('onlineCount');
-        const usersCount = document.getElementById('usersCount');
+        const userUniqueIdElement = document.getElementById('userUniqueId');
+        const displayUserIdElement = document.getElementById('displayUserId');
+        const dialInput = document.getElementById('dialInput');
+        const overlay = document.getElementById('overlay');
+        const usersLoading = document.getElementById('usersLoading');
+        const callStatus = document.getElementById('callStatus');
 
-        // WebSocket Functions
-        function initializeWebSocket() {
-            try {
-                updateConnectionStatus('connecting');
-                ws = new WebSocket(WS_SERVER_URL);
-                
-                ws.onopen = handleWebSocketOpen;
-                ws.onmessage = handleWebSocketMessage;
-                ws.onclose = handleWebSocketClose;
-                ws.onerror = handleWebSocketError;
-                
-            } catch (error) {
-                console.error('WebSocket initialization error:', error);
-                showError('Failed to connect to server. Using offline mode.');
-                updateConnectionStatus('disconnected');
-            }
-        }
+        // Storage Keys
+        const STORAGE_KEYS = {
+            USER_SESSION: 'videocall_user_session'
+        };
 
-        function handleWebSocketOpen() {
-            console.log('WebSocket connected successfully');
-            updateConnectionStatus('connected');
-            reconnectAttempts = 0;
-            
-            // Register user with the server
-            sendWebSocketMessage({
-                type: 'user_join',
-                user: currentUser,
-                timestamp: Date.now()
-            });
-        }
+        // App State Management
+        const AppState = {
+            AUTH: 'auth',
+            APP: 'app',
+            CALL: 'call'
+        };
 
-        function handleWebSocketMessage(event) {
-            try {
-                const data = JSON.parse(event.data);
-                console.log('WebSocket message received:', data);
-                
-                // For echo server, we need to parse the data we sent
-                const message = typeof data === 'string' ? JSON.parse(data) : data;
-                
-                switch (message.type) {
-                    case 'user_joined':
-                        handleUserJoined(message.user);
-                        break;
-                    case 'user_left':
-                        handleUserLeft(message.userId);
-                        break;
-                    case 'users_list':
-                        handleUsersList(message.users);
-                        break;
-                    case 'call_offer':
-                        handleIncomingCall(message);
-                        break;
-                    case 'call_answer':
-                        handleCallAnswer(message);
-                        break;
-                    case 'call_end':
-                        handleCallEnd(message);
-                        break;
-                    case 'user_status_update':
-                        handleUserStatusUpdate(message.user);
-                        break;
-                    case 'ping':
-                        // Respond to ping
-                        sendWebSocketMessage({ type: 'pong', timestamp: Date.now() });
-                        break;
-                    default:
-                        console.log('Unknown message type:', message.type);
-                }
-            } catch (error) {
-                console.error('Error parsing WebSocket message:', error);
-            }
-        }
-
-        function handleWebSocketClose(event) {
-            console.log('WebSocket disconnected:', event.code, event.reason);
-            updateConnectionStatus('disconnected');
-            
-            // Attempt to reconnect
-            if (reconnectAttempts < maxReconnectAttempts) {
-                setTimeout(() => {
-                    reconnectAttempts++;
-                    console.log(`Attempting to reconnect... (${reconnectAttempts}/${maxReconnectAttempts})`);
-                    initializeWebSocket();
-                }, 2000 * reconnectAttempts);
-            }
-        }
-
-        function handleWebSocketError(error) {
-            console.error('WebSocket error:', error);
-            updateConnectionStatus('disconnected');
-        }
-
-        function sendWebSocketMessage(message) {
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify(message));
-            } else {
-                console.warn('WebSocket not connected, message not sent:', message);
-                // Store message for when connection resumes
-                if (message.type === 'user_join') {
-                    setTimeout(() => {
-                        if (ws && ws.readyState === WebSocket.OPEN) {
-                            ws.send(JSON.stringify(message));
-                        }
-                    }, 1000);
-                }
-            }
-        }
-
-        function updateConnectionStatus(status) {
-            connectionStatus.style.display = 'block';
-            connectionStatus.className = `connection-status ${status}`;
-            
-            switch (status) {
-                case 'connected':
-                    statusText.innerHTML = '<i class="fas fa-wifi"></i> Connected';
-                    break;
-                case 'disconnected':
-                    statusText.innerHTML = '<i class="fas fa-wifi-slash"></i> Disconnected';
-                    break;
-                case 'connecting':
-                    statusText.innerHTML = '<i class="fas fa-sync fa-spin"></i> Connecting...';
-                    break;
-            }
-        }
-
-        // User Management
-        function handleUserJoined(user) {
-            if (user.id !== currentUser.id) {
-                onlineUsers.set(user.id, user);
-                updateUsersList();
-                showSuccess(`${user.username} joined the call`);
-            }
-        }
-
-        function handleUserLeft(userId) {
-            const user = onlineUsers.get(userId);
-            if (user) {
-                showError(`${user.username} left the call`);
-                onlineUsers.delete(userId);
-                updateUsersList();
-                
-                // Remove their video if in call
-                const remoteVideo = document.getElementById(`remote-${userId}`);
-                if (remoteVideo) {
-                    remoteVideo.remove();
-                }
-            }
-        }
-
-        function handleUsersList(users) {
-            onlineUsers.clear();
-            users.forEach(user => {
-                if (user.id !== currentUser.id) {
-                    onlineUsers.set(user.id, user);
-                }
-            });
-            updateUsersList();
-        }
-
-        function handleUserStatusUpdate(user) {
-            onlineUsers.set(user.id, user);
-            updateUsersList();
-        }
-
-        function updateUsersList() {
-            usersList.innerHTML = '';
-            let onlineCount = 0;
-            
-            onlineUsers.forEach(user => {
-                if (user.id !== currentUser.id) {
-                    onlineCount++;
-                    const userItem = document.createElement('div');
-                    userItem.className = `user-item ${user.online ? 'online' : 'offline'} ${user.inCall ? 'in-call' : ''}`;
-                    userItem.innerHTML = `
-                        <div class="status-dot"></div>
-                        <div class="avatar">${user.username.charAt(0).toUpperCase()}</div>
-                        <div style="flex: 1;">
-                            <div>${user.username}</div>
-                            <small>${user.inCall ? 'In a call' : (user.online ? 'Online' : 'Offline')}</small>
-                        </div>
-                        <div class="call-actions">
-                            <button class="call-btn video-call" onclick="initiateCall('${user.id}', 'video')" ${user.inCall ? 'disabled' : ''}>
-                                <i class="fas fa-video"></i>
-                            </button>
-                            <button class="call-btn audio-call" onclick="initiateCall('${user.id}', 'audio')" ${user.inCall ? 'disabled' : ''}>
-                                <i class="fas fa-phone"></i>
-                            </button>
-                        </div>
-                    `;
-                    usersList.appendChild(userItem);
-                }
-            });
-            
-            document.getElementById('onlineCount').textContent = `${onlineCount} online`;
-            usersCount.textContent = `(${onlineCount})`;
-            
-            // If no users online, show message
-            if (onlineCount === 0) {
-                usersList.innerHTML = `
-                    <div style="text-align: center; padding: 40px 20px; color: #6c757d;">
-                        <i class="fas fa-users" style="font-size: 48px; margin-bottom: 10px;"></i>
-                        <p>No other users online</p>
-                        <small>Open this page on another device to test</small>
-                    </div>
-                `;
-            }
-        }
-
-        // Call Management
-        function initiateCall(targetUserId, callType) {
-            const targetUser = onlineUsers.get(targetUserId);
-            if (!targetUser) {
-                showError('User is not available');
-                return;
-            }
-            
-            if (targetUser.inCall) {
-                showError('User is already in a call');
-                return;
-            }
-            
-            currentCall = {
-                id: generateCallId(),
-                targetUserId: targetUserId,
-                type: callType,
-                initiator: currentUser.id
-            };
-            
-            sendWebSocketMessage({
-                type: 'call_offer',
-                callId: currentCall.id,
-                from: currentUser,
-                to: targetUserId,
-                callType: callType,
-                timestamp: Date.now()
-            });
-            
-            isInCall = true;
-            showCallInterface();
-            updateUserStatus(true);
-            showSuccess(`Calling ${targetUser.username}...`);
-        }
-
-        function handleIncomingCall(data) {
-            // Only handle calls meant for current user
-            if (data.to !== currentUser.id) return;
-            
-            incomingCallData = data;
-            
-            // Play incoming call sound
-            try {
-                incomingCallSound.play().catch(e => console.log('Audio play failed:', e));
-            } catch (e) {
-                console.log('Audio play error:', e);
-            }
-            
-            document.getElementById('callerInfo').textContent = 
-                `${data.from.username} is ${data.callType === 'video' ? 'video' : 'audio'} calling you...`;
-            incomingCallNotification.style.display = 'block';
-        }
-
-        function acceptCall() {
-            if (!incomingCallData) return;
-            
-            // Stop call sound
-            incomingCallSound.pause();
-            incomingCallSound.currentTime = 0;
-            
-            currentCall = {
-                id: incomingCallData.callId,
-                targetUserId: incomingCallData.from.id,
-                type: incomingCallData.callType,
-                initiator: incomingCallData.from.id
-            };
-            
-            sendWebSocketMessage({
-                type: 'call_answer',
-                callId: incomingCallData.callId,
-                from: currentUser,
-                to: incomingCallData.from.id,
-                answer: true,
-                timestamp: Date.now()
-            });
-            
-            incomingCallNotification.style.display = 'none';
-            isInCall = true;
-            showCallInterface();
-            
-            // Update user status
-            updateUserStatus(true);
-            
-            showSuccess(`Connected to ${incomingCallData.from.username}`);
-            
-            // Simulate remote video for demo
-            setTimeout(() => {
-                simulateRemoteVideo(incomingCallData.from.id);
-            }, 1000);
-        }
-
-        function rejectCall() {
-            if (!incomingCallData) return;
-            
-            // Stop call sound
-            incomingCallSound.pause();
-            incomingCallSound.currentTime = 0;
-            
-            sendWebSocketMessage({
-                type: 'call_answer',
-                callId: incomingCallData.callId,
-                from: currentUser,
-                to: incomingCallData.from.id,
-                answer: false,
-                timestamp: Date.now()
-            });
-            
-            incomingCallNotification.style.display = 'none';
-            incomingCallData = null;
-            showError('Call declined');
-        }
-
-        function handleCallAnswer(data) {
-            if (data.answer) {
-                showSuccess(`${data.from.username} accepted your call`);
-                // Simulate remote video for demo
-                setTimeout(() => {
-                    simulateRemoteVideo(data.from.id);
-                }, 1000);
-            } else {
-                showError(`${data.from.username} declined your call`);
-                hangUp();
-            }
-        }
-
-        function handleCallEnd(data) {
-            showError('Call ended by other user');
-            hangUp();
-        }
-
-        function hangUp() {
-            if (currentCall) {
-                sendWebSocketMessage({
-                    type: 'call_end',
-                    callId: currentCall.id,
-                    from: currentUser,
-                    timestamp: Date.now()
-                });
-            }
-            
-            // Close all peer connections
-            Object.values(peerConnections).forEach(pc => pc.close());
-            peerConnections = {};
-            
-            // Stop screen share if active
-            if (isSharingScreen) {
-                stopScreenShare();
-            }
-            
-            // Reset UI
-            isInCall = false;
-            currentCall = null;
-            hideCallInterface();
-            
-            // Update user status
-            updateUserStatus(false);
-            
-            showSuccess('Call ended');
-        }
-
-        function updateUserStatus(inCall = false) {
-            if (currentUser) {
-                currentUser.inCall = inCall;
-                sendWebSocketMessage({
-                    type: 'user_status_update',
-                    user: currentUser,
-                    timestamp: Date.now()
-                });
-            }
-        }
+        let appState = AppState.AUTH;
 
         // Utility Functions
-        function generateCallId() {
-            return 'call_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-        }
-
         function showError(message) {
             errorMessage.textContent = message;
             errorMessage.style.display = 'block';
             successMessage.style.display = 'none';
-            
             setTimeout(() => {
                 errorMessage.style.display = 'none';
             }, 5000);
@@ -968,72 +672,710 @@
             successMessage.textContent = message;
             successMessage.style.display = 'block';
             errorMessage.style.display = 'none';
-            
             setTimeout(() => {
                 successMessage.style.display = 'none';
             }, 3000);
         }
 
-        // Authentication
-        function login() {
-            const username = document.getElementById('loginUsername').value.trim();
+        // WebRTC Data Serialization Functions
+        function serializeRTCSessionDescription(desc) {
+            return {
+                type: desc.type,
+                sdp: desc.sdp
+            };
+        }
+
+        function deserializeRTCSessionDescription(desc) {
+            return new RTCSessionDescription(desc);
+        }
+
+        function serializeRTCIceCandidate(candidate) {
+            return {
+                candidate: candidate.candidate,
+                sdpMid: candidate.sdpMid,
+                sdpMLineIndex: candidate.sdpMLineIndex,
+                usernameFragment: candidate.usernameFragment
+            };
+        }
+
+        function deserializeRTCIceCandidate(candidate) {
+            return new RTCIceCandidate(candidate);
+        }
+
+        // Local Storage Functions
+        function saveToLocalStorage(key, data) {
+            try {
+                localStorage.setItem(key, JSON.stringify(data));
+            } catch (error) {
+                console.error('Error saving to localStorage:', error);
+            }
+        }
+
+        function getFromLocalStorage(key) {
+            try {
+                const data = localStorage.getItem(key);
+                return data ? JSON.parse(data) : null;
+            } catch (error) {
+                console.error('Error reading from localStorage:', error);
+                return null;
+            }
+        }
+
+        function clearLocalStorage() {
+            try {
+                localStorage.removeItem(STORAGE_KEYS.USER_SESSION);
+            } catch (error) {
+                console.error('Error clearing localStorage:', error);
+            }
+        }
+
+        // Session Management
+        function saveUserSession(userData) {
+            const sessionData = {
+                ...userData,
+                timestamp: Date.now()
+            };
+            saveToLocalStorage(STORAGE_KEYS.USER_SESSION, sessionData);
+        }
+
+        function getUserSession() {
+            return getFromLocalStorage(STORAGE_KEYS.USER_SESSION);
+        }
+
+        function isSessionValid(session) {
+            if (!session) return false;
+            // Session expires after 24 hours
+            return Date.now() - session.timestamp < 24 * 60 * 60 * 1000;
+        }
+
+        // Generate 7-digit unique ID
+        function generateUniqueId() {
+            const timestampPart = Date.now().toString().slice(-4);
+            const randomPart = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+            let uniqueId = (timestampPart + randomPart).slice(-7);
+            uniqueId = uniqueId.padStart(7, '0');
+            console.log("Generated unique ID:", uniqueId);
+            return uniqueId;
+        }
+
+        // Check if unique ID already exists in the database
+        async function isUniqueIdAvailable(uniqueId) {
+            try {
+                const snapshot = await db.collection('users')
+                    .where('uniqueId', '==', uniqueId)
+                    .get();
+                return snapshot.empty;
+            } catch (error) {
+                console.error('Error checking unique ID:', error);
+                return false;
+            }
+        }
+
+        // Generate a guaranteed unique ID
+        async function generateGuaranteedUniqueId() {
+            let attempts = 0;
+            const maxAttempts = 10;
             
-            if (!username) {
-                showError('Please enter a username');
-                return;
+            while (attempts < maxAttempts) {
+                const candidateId = generateUniqueId();
+                const isAvailable = await isUniqueIdAvailable(candidateId);
+                
+                if (isAvailable) {
+                    console.log("Found unique ID after", attempts + 1, "attempts:", candidateId);
+                    return candidateId;
+                }
+                
+                attempts++;
             }
             
-            currentUser = {
-                id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-                username: username,
-                online: true,
-                inCall: false
+            const fallbackId = Date.now().toString().slice(-7).padStart(7, '0');
+            console.log("Using fallback ID:", fallbackId);
+            return fallbackId;
+        }
+
+        // Update User ID Display
+        function updateUserIdDisplay() {
+            if (userUniqueId) {
+                userUniqueIdElement.textContent = userUniqueId;
+                displayUserIdElement.textContent = userUniqueId;
+            } else {
+                userUniqueIdElement.textContent = "0000000";
+                displayUserIdElement.textContent = "0000000";
+            }
+        }
+
+        // WebRTC Signaling using Firebase Firestore
+        function setupSignaling() {
+            if (!currentUser || !userUniqueId) {
+                console.log("Cannot setup signaling: user not properly initialized");
+                return;
+            }
+
+            try {
+                // Listen for incoming signaling messages
+                signalingUnsubscribe = db.collection('signaling')
+                    .where('to', '==', userUniqueId)
+                    .onSnapshot(
+                        snapshot => {
+                            snapshot.docChanges().forEach(change => {
+                                if (change.type === 'added') {
+                                    const message = change.doc.data();
+                                    console.log('Received signaling message:', message);
+                                    handleSignalingMessage(message);
+                                    // Remove the message after processing
+                                    setTimeout(() => {
+                                        db.collection('signaling').doc(change.doc.id).delete()
+                                            .catch(error => console.error("Error deleting signaling message:", error));
+                                    }, 1000);
+                                }
+                            });
+                        },
+                        error => {
+                            console.error("Error in signaling listener:", error);
+                        }
+                    );
+                console.log("Signaling setup completed successfully");
+            } catch (error) {
+                console.error("Error setting up signaling:", error);
+            }
+        }
+
+        function sendSignalingMessage(to, type, data) {
+            if (!to || !userUniqueId) {
+                console.error("Cannot send signaling message: missing parameters");
+                return;
+            }
+
+            let serializedData;
+            
+            // Serialize WebRTC objects before storing in Firestore
+            if (type === 'offer' || type === 'answer') {
+                serializedData = serializeRTCSessionDescription(data);
+            } else if (type === 'ice-candidate') {
+                serializedData = serializeRTCIceCandidate(data);
+            } else {
+                serializedData = data;
+            }
+
+            const message = {
+                from: userUniqueId,
+                to: to,
+                type: type,
+                data: serializedData,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            db.collection('signaling').add(message)
+                .then(() => console.log(`Signaling message sent: ${type} to ${to}`))
+                .catch(error => console.error("Error sending signaling message:", error));
+        }
+
+        function handleSignalingMessage(message) {
+            console.log('Processing signaling message:', message.type, 'from:', message.from);
+
+            if (!message.from || !message.type) {
+                console.error("Invalid signaling message received");
+                return;
+            }
+
+            let data = message.data;
+            
+            // Deserialize WebRTC objects
+            if (message.type === 'offer' || message.type === 'answer') {
+                data = deserializeRTCSessionDescription(data);
+            } else if (message.type === 'ice-candidate') {
+                data = deserializeRTCIceCandidate(data);
+            }
+
+            switch (message.type) {
+                case 'offer':
+                    handleOffer(message.from, data);
+                    break;
+                case 'answer':
+                    handleAnswer(message.from, data);
+                    break;
+                case 'ice-candidate':
+                    handleIceCandidate(message.from, data);
+                    break;
+                case 'call-ended':
+                    handleRemoteHangup(message.from);
+                    break;
+                case 'call-request':
+                    handleCallRequest(message.from, data);
+                    break;
+                default:
+                    console.log("Unknown signaling message type:", message.type);
+            }
+        }
+
+        // Improved WebRTC Functions with better error handling
+        async function createPeerConnection(targetId, isInitiator = false) {
+            if (!targetId) {
+                console.error("Cannot create peer connection: missing targetId");
+                return;
+            }
+
+            try {
+                console.log(`Creating peer connection with ${targetId}, initiator: ${isInitiator}`);
+                
+                const pc = new RTCPeerConnection(rtcConfig);
+
+                // Add local stream tracks if available
+                if (localStream) {
+                    localStream.getTracks().forEach(track => {
+                        console.log(`Adding local track: ${track.kind}`);
+                        pc.addTrack(track, localStream);
+                    });
+                }
+
+                // Handle incoming tracks
+                pc.ontrack = (event) => {
+                    console.log('Received remote stream from:', targetId, event.streams);
+                    if (event.streams && event.streams[0]) {
+                        addRemoteVideo(targetId, event.streams[0]);
+                    }
+                };
+
+                // Handle ICE candidates
+                pc.onicecandidate = (event) => {
+                    if (event.candidate) {
+                        console.log('Sending ICE candidate to:', targetId);
+                        sendSignalingMessage(targetId, 'ice-candidate', event.candidate);
+                    } else {
+                        console.log('All ICE candidates have been sent to:', targetId);
+                    }
+                };
+
+                // Handle connection state changes
+                pc.onconnectionstatechange = () => {
+                    const state = pc.connectionState;
+                    console.log(`Connection state with ${targetId}: ${state}`);
+                    updateCallStatus(state);
+                    
+                    if (state === 'connected') {
+                        showSuccess('Call connected successfully!');
+                        startConnectionMonitoring(pc, targetId);
+                    } else if (state === 'failed' || state === 'disconnected') {
+                        console.error(`Connection ${state} with ${targetId}`);
+                        if (isInitiator) {
+                            // Try to reconnect if we're the initiator
+                            setTimeout(() => {
+                                if (pc.connectionState === 'failed') {
+                                    console.log('Attempting to restart ICE for:', targetId);
+                                    pc.restartIce();
+                                }
+                            }, 2000);
+                        }
+                    }
+                };
+
+                // Handle ICE connection state
+                pc.oniceconnectionstatechange = () => {
+                    console.log(`ICE connection state with ${targetId}: ${pc.iceConnectionState}`);
+                };
+
+                peerConnections[targetId] = pc;
+
+                return pc;
+            } catch (error) {
+                console.error("Error creating peer connection:", error);
+                return null;
+            }
+        }
+
+        async function handleOffer(from, offer) {
+            console.log('Handling offer from:', from);
+            
+            if (isInCall && activeCallData && activeCallData.from !== from) {
+                console.log('Already in call, rejecting incoming offer');
+                sendSignalingMessage(from, 'call-ended', { reason: 'busy' });
+                return;
+            }
+
+            // Show incoming call notification
+            incomingCallData = {
+                from: from,
+                type: 'video', // You can detect this from offer SDP
+                id: 'incoming-' + Date.now()
             };
             
-            showApp();
+            document.getElementById('callerInfo').textContent = 
+                `User ${from} is video calling you...`;
+            incomingCallNotification.style.display = 'block';
+            overlay.style.display = 'block';
+            
+            // Store the offer for later use if accepted
+            incomingCallData.offer = offer;
+        }
+
+        async function handleAnswer(from, answer) {
+            console.log('Handling answer from:', from);
+            
+            const pc = peerConnections[from];
+            if (pc && pc.signalingState !== 'stable') {
+                try {
+                    await pc.setRemoteDescription(answer);
+                    console.log('Remote description set successfully for:', from);
+                } catch (error) {
+                    console.error('Error handling answer:', error);
+                }
+            }
+        }
+
+        async function handleIceCandidate(from, candidate) {
+            console.log('Handling ICE candidate from:', from);
+            
+            const pc = peerConnections[from];
+            if (pc) {
+                try {
+                    await pc.addIceCandidate(candidate);
+                    console.log('ICE candidate added successfully for:', from);
+                } catch (error) {
+                    console.error('Error adding ICE candidate:', error);
+                    // Don't show error for failed ICE candidates - they're common
+                }
+            }
+        }
+
+        function handleCallRequest(from, data) {
+            console.log('Received call request from:', from);
+            // This can be used for future call request handling
+        }
+
+        function handleRemoteHangup(from) {
+            console.log('Remote user hung up:', from);
+            showSuccess('Call ended by remote user');
+            removePeerConnection(from);
+            if (Object.keys(peerConnections).length === 0) {
+                hangUp();
+            }
+        }
+
+        function removePeerConnection(targetId) {
+            if (peerConnections[targetId]) {
+                peerConnections[targetId].close();
+                delete peerConnections[targetId];
+            }
+            
+            // Remove remote video
+            const remoteVideo = document.getElementById(`remote-wrapper-${targetId}`);
+            if (remoteVideo) {
+                remoteVideo.remove();
+            }
+        }
+
+        function updateCallStatus(status) {
+            const statusMap = {
+                'new': 'Ready',
+                'connecting': 'Connecting...',
+                'connected': 'Connected',
+                'disconnected': 'Disconnected',
+                'failed': 'Connection Failed - Check your network',
+                'closed': 'Call Ended'
+            };
+            
+            callStatus.textContent = statusMap[status] || status;
+            
+            // Update status color based on connection state
+            if (status === 'connected') {
+                callStatus.style.background = '#d4edda';
+                callStatus.style.color = '#155724';
+            } else if (status === 'failed' || status === 'disconnected') {
+                callStatus.style.background = '#f8d7da';
+                callStatus.style.color = '#721c24';
+            } else {
+                callStatus.style.background = '#fff3cd';
+                callStatus.style.color = '#856404';
+            }
+        }
+
+        function startConnectionMonitoring(pc, targetId) {
+            // Monitor connection quality
+            if (connectionCheckInterval) {
+                clearInterval(connectionCheckInterval);
+            }
+            
+            connectionCheckInterval = setInterval(() => {
+                if (pc.connectionState === 'connected') {
+                    updateConnectionQuality(pc, targetId);
+                } else {
+                    clearInterval(connectionCheckInterval);
+                }
+            }, 5000);
+        }
+
+        function updateConnectionQuality(pc, targetId) {
+            // This is a simplified connection quality indicator
+            // In a real app, you'd use RTCPeerConnection.getStats()
+            const qualityElement = document.getElementById(`connection-quality-${targetId}`) || 
+                                 document.getElementById('localConnectionQuality');
+            if (qualityElement) {
+                const states = ['Poor', 'Fair', 'Good', 'Excellent'];
+                const randomQuality = states[Math.floor(Math.random() * states.length)];
+                qualityElement.textContent = randomQuality;
+            }
+        }
+
+        // Authentication Functions
+        function showRegister() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+            hideMessages();
+        }
+
+        function showLogin() {
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+            hideMessages();
+        }
+
+        function hideMessages() {
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+        }
+
+        async function register() {
+            const username = document.getElementById('registerUsername').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+
+            if (!username || !email || !password) {
+                showError('Please fill in all fields');
+                return;
+            }
+
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+
+                // Generate guaranteed unique 7-digit ID
+                userUniqueId = await generateGuaranteedUniqueId();
+
+                await db.collection('users').doc(user.uid).set({
+                    username: username,
+                    email: email,
+                    uniqueId: userUniqueId,
+                    online: true,
+                    lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                currentUser = {
+                    uid: user.uid,
+                    username: username,
+                    email: email,
+                    uniqueId: userUniqueId
+                };
+
+                // Save session
+                saveUserSession(currentUser);
+
+                showApp();
+                showSuccess('Registration successful! Your ID: ' + userUniqueId);
+            } catch (error) {
+                console.error('Registration error:', error);
+                if (error.code === 'auth/email-already-in-use') {
+                    showError('Email already registered.');
+                } else if (error.code === 'auth/weak-password') {
+                    showError('Password is too weak.');
+                } else {
+                    showError('Registration failed: ' + error.message);
+                }
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                showError('Please enter both email and password');
+                return;
+            }
+
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                if (!userDoc.exists) {
+                    showError('User not found.');
+                    return;
+                }
+
+                const userData = userDoc.data();
+                
+                if (!userData.uniqueId) {
+                    console.log("User doesn't have uniqueId, generating one...");
+                    userUniqueId = await generateGuaranteedUniqueId();
+                    await db.collection('users').doc(user.uid).update({
+                        uniqueId: userUniqueId
+                    });
+                } else {
+                    userUniqueId = userData.uniqueId;
+                }
+
+                currentUser = {
+                    uid: user.uid,
+                    username: userData.username,
+                    email: user.email,
+                    uniqueId: userUniqueId
+                };
+
+                // Save session
+                saveUserSession(currentUser);
+
+                // Update user status to online
+                await db.collection('users').doc(user.uid).update({
+                    online: true,
+                    lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                showApp();
+                showSuccess('Login successful! Your ID: ' + userUniqueId);
+            } catch (error) {
+                console.error('Login error:', error);
+                if (error.code === 'auth/user-not-found') {
+                    showError('User not found.');
+                } else if (error.code === 'auth/wrong-password') {
+                    showError('Incorrect password.');
+                } else {
+                    showError('Login failed: ' + error.message);
+                }
+            }
         }
 
         function logout() {
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                sendWebSocketMessage({
-                    type: 'user_leave',
-                    user: currentUser,
-                    timestamp: Date.now()
-                });
-                ws.close();
+            if (currentUser && currentUser.uid) {
+                db.collection('users').doc(currentUser.uid).update({
+                    online: false,
+                    lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+                }).catch(error => console.error("Error updating user status on logout:", error));
             }
-            
-            // Stop media streams
+
+            if (signalingUnsubscribe) {
+                signalingUnsubscribe();
+            }
+
+            if (connectionCheckInterval) {
+                clearInterval(connectionCheckInterval);
+            }
+
+            // Close all peer connections
+            Object.keys(peerConnections).forEach(targetId => {
+                removePeerConnection(targetId);
+            });
+
+            // Stop local stream
             if (localStream) {
                 localStream.getTracks().forEach(track => track.stop());
             }
-            if (screenStream) {
-                screenStream.getTracks().forEach(track => track.stop());
-            }
-            
+
+            auth.signOut();
+            clearLocalStorage();
             currentUser = null;
-            onlineUsers.clear();
+            userUniqueId = null;
             authScreen.style.display = 'flex';
             appScreen.style.display = 'none';
-            connectionStatus.style.display = 'none';
-            hideCallInterface();
+            hideMessages();
+            appState = AppState.AUTH;
         }
 
         function showApp() {
             authScreen.style.display = 'none';
             appScreen.style.display = 'block';
-            document.getElementById('userName').textContent = currentUser.username;
-            document.getElementById('userAvatar').textContent = currentUser.username.charAt(0).toUpperCase();
             
+            if (currentUser) {
+                document.getElementById('userName').textContent = currentUser.username;
+                document.getElementById('userAvatar').textContent = currentUser.username.charAt(0).toUpperCase();
+            }
+            
+            // Update user ID display
+            updateUserIdDisplay();
+
             initializeApp();
+            appState = AppState.APP;
         }
 
-        // Media Functions
+        // Initialize main application
         async function initializeApp() {
+            console.log("Initializing app with user:", currentUser);
+            console.log("User unique ID:", userUniqueId);
+            
+            // Wait for user data to be properly loaded
+            if (!userUniqueId && currentUser && currentUser.uid) {
+                console.log("User ID not available, fetching from database...");
+                try {
+                    const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                    if (userDoc.exists) {
+                        const userData = userDoc.data();
+                        userUniqueId = userData.uniqueId;
+                        currentUser.uniqueId = userUniqueId;
+                        updateUserIdDisplay();
+                        console.log("User ID loaded from database:", userUniqueId);
+                    }
+                } catch (error) {
+                    console.error("Error fetching user data:", error);
+                }
+            }
+            
             await startLocalStream();
-            initializeWebSocket();
+            setupSignaling();
+            setupUsersListener();
         }
 
+        // Setup users listener
+        function setupUsersListener() {
+            if (!userUniqueId) {
+                console.error("Cannot setup users listener: userUniqueId is null");
+                setTimeout(() => {
+                    if (userUniqueId) {
+                        setupUsersListener();
+                    }
+                }, 1000);
+                return;
+            }
+
+            usersLoading.style.display = 'block';
+            
+            db.collection('users').where('online', '==', true)
+                .onSnapshot(
+                    snapshot => {
+                        usersList.innerHTML = '';
+                        usersLoading.style.display = 'none';
+                        
+                        snapshot.forEach(doc => {
+                            const user = doc.data();
+                            if (user.uniqueId !== userUniqueId) {
+                                const userItem = document.createElement('div');
+                                userItem.className = 'user-item online';
+                                userItem.innerHTML = `
+                                    <div class="avatar">${user.username.charAt(0).toUpperCase()}</div>
+                                    <div>
+                                        <div>${user.username}</div>
+                                        <small>ID: ${user.uniqueId}</small>
+                                    </div>
+                                    <div class="call-actions">
+                                        <button class="call-btn video-call" onclick="initiateUserCall('${user.uniqueId}', 'video')">
+                                            <i class="fas fa-video"></i>
+                                        </button>
+                                        <button class="call-btn audio-call" onclick="initiateUserCall('${user.uniqueId}', 'audio')">
+                                            <i class="fas fa-phone"></i>
+                                        </button>
+                                    </div>
+                                `;
+                                usersList.appendChild(userItem);
+                            }
+                        });
+                    },
+                    error => {
+                        console.error("Error in users listener:", error);
+                        usersLoading.style.display = 'none';
+                    }
+                );
+        }
+
+        // Media stream function
         async function startLocalStream() {
             try {
                 const constraints = {
@@ -1045,18 +1387,215 @@
                     audio: {
                         echoCancellation: true,
                         noiseSuppression: true,
-                        autoGainControl: true,
-                        sampleRate: 48000,
-                        channelCount: 2
+                        autoGainControl: true
                     }
                 };
 
                 localStream = await navigator.mediaDevices.getUserMedia(constraints);
                 document.getElementById('localVideo').srcObject = localStream;
+                console.log("Local stream started successfully");
             } catch (error) {
                 console.error('Error accessing media devices:', error);
                 showError('Camera and microphone access is required for video calls.');
             }
+        }
+
+        // Call initiation functions
+        function validateAndCall() {
+            const targetId = dialInput.value.trim();
+            if (targetId.length !== 7) {
+                showError('Please enter a valid 7-digit ID');
+                return;
+            }
+            if (targetId === userUniqueId) {
+                showError('Cannot call yourself');
+                return;
+            }
+            initiateCall('video', targetId);
+        }
+
+        function initiateUserCall(targetId, callType) {
+            initiateCall(callType, targetId);
+        }
+
+        async function initiateCall(callType, targetId = null) {
+            if (!targetId) {
+                targetId = dialInput.value.trim();
+                if (targetId.length !== 7) {
+                    showError('Please enter a valid 7-digit ID');
+                    return;
+                }
+            }
+
+            if (!userUniqueId) {
+                showError('Your user ID is not set. Please try logging in again.');
+                return;
+            }
+
+            if (isInCall) {
+                showError('You are already in a call. Please hang up first.');
+                return;
+            }
+
+            try {
+                // Check if target user exists
+                const usersSnapshot = await db.collection('users')
+                    .where('uniqueId', '==', targetId)
+                    .get();
+
+                if (usersSnapshot.empty) {
+                    showError('User not found with this ID');
+                    return;
+                }
+
+                const targetUser = usersSnapshot.docs[0].data();
+                showSuccess(`Calling ${targetUser.username}...`);
+
+                // Setup WebRTC connection
+                const pc = await createPeerConnection(targetId, true);
+                if (!pc) {
+                    showError('Failed to create connection');
+                    return;
+                }
+
+                // Create and send offer
+                try {
+                    const offer = await pc.createOffer({
+                        offerToReceiveAudio: true,
+                        offerToReceiveVideo: callType === 'video'
+                    });
+                    await pc.setLocalDescription(offer);
+                    sendSignalingMessage(targetId, 'offer', offer);
+                    
+                    currentCall = targetId;
+                    isInCall = true;
+                    showCallInterface();
+                    
+                    console.log('Offer created and sent to:', targetId);
+                } catch (error) {
+                    console.error('Error creating offer:', error);
+                    showError('Failed to start call');
+                    removePeerConnection(targetId);
+                }
+
+            } catch (error) {
+                console.error('Call initiation error:', error);
+                showError('Failed to initiate call');
+            }
+        }
+
+        // Call management functions
+        async function acceptCall() {
+            if (!incomingCallData || !incomingCallData.offer) {
+                showError('No incoming call to accept');
+                return;
+            }
+
+            try {
+                incomingCallNotification.style.display = 'none';
+                overlay.style.display = 'none';
+                
+                const pc = await createPeerConnection(incomingCallData.from, false);
+                if (!pc) {
+                    showError('Failed to create connection');
+                    return;
+                }
+
+                await pc.setRemoteDescription(incomingCallData.offer);
+                
+                // Create and send answer
+                const answer = await pc.createAnswer();
+                await pc.setLocalDescription(answer);
+                sendSignalingMessage(incomingCallData.from, 'answer', answer);
+                
+                isInCall = true;
+                activeCallData = incomingCallData;
+                showCallInterface();
+                showSuccess('Call accepted!');
+                
+                console.log('Call accepted with:', incomingCallData.from);
+                
+            } catch (error) {
+                console.error('Error accepting call:', error);
+                showError('Failed to accept call');
+            } finally {
+                incomingCallData = null;
+            }
+        }
+
+        function rejectCall() {
+            if (!incomingCallData) return;
+
+            sendSignalingMessage(incomingCallData.from, 'call-ended', { reason: 'rejected' });
+            incomingCallNotification.style.display = 'none';
+            overlay.style.display = 'none';
+            incomingCallData = null;
+            showSuccess('Call declined');
+        }
+
+        function addRemoteVideo(peerId, stream, username = 'Remote User') {
+            // Remove existing remote video if present
+            const existingVideo = document.getElementById(`remote-wrapper-${peerId}`);
+            if (existingVideo) {
+                existingVideo.remove();
+            }
+
+            const videoWrapper = document.createElement('div');
+            videoWrapper.className = 'video-wrapper remote';
+            videoWrapper.id = `remote-wrapper-${peerId}`;
+
+            const video = document.createElement('video');
+            video.id = `remote-${peerId}`;
+            video.autoplay = true;
+            video.playsinline = true;
+            video.srcObject = stream;
+
+            const label = document.createElement('div');
+            label.className = 'video-label';
+            label.textContent = username || `User ${peerId}`;
+
+            const quality = document.createElement('div');
+            quality.className = 'connection-quality';
+            quality.id = `connection-quality-${peerId}`;
+            quality.textContent = 'Connecting...';
+
+            videoWrapper.appendChild(video);
+            videoWrapper.appendChild(label);
+            videoWrapper.appendChild(quality);
+            videoContainer.appendChild(videoWrapper);
+            
+            console.log('Remote video added for:', peerId);
+        }
+
+        function hangUp() {
+            console.log('Hanging up call');
+            
+            // Send call-ended signal to all peers
+            Object.keys(peerConnections).forEach(targetId => {
+                sendSignalingMessage(targetId, 'call-ended', {});
+                removePeerConnection(targetId);
+            });
+
+            if (connectionCheckInterval) {
+                clearInterval(connectionCheckInterval);
+            }
+
+            isInCall = false;
+            currentCall = null;
+            activeCallData = null;
+            hideCallInterface();
+
+            showSuccess('Call ended');
+        }
+
+        function showCallInterface() {
+            document.querySelector('.call-interface').style.display = 'flex';
+            updateCallStatus('connecting');
+        }
+
+        function hideCallInterface() {
+            document.querySelector('.call-interface').style.display = 'none';
+            updateCallStatus('Ready to call');
         }
 
         function toggleMic() {
@@ -1066,8 +1605,8 @@
                 audioTrack.enabled = !audioTrack.enabled;
                 const btn = document.getElementById('micBtn');
                 btn.classList.toggle('active', !audioTrack.enabled);
-                btn.innerHTML = audioTrack.enabled ? 
-                    '<i class="fas fa-microphone"></i>' : 
+                btn.innerHTML = audioTrack.enabled ?
+                    '<i class="fas fa-microphone"></i>' :
                     '<i class="fas fa-microphone-slash"></i>';
             }
         }
@@ -1079,8 +1618,8 @@
                 videoTrack.enabled = !videoTrack.enabled;
                 const btn = document.getElementById('videoBtn');
                 btn.classList.toggle('active', !videoTrack.enabled);
-                btn.innerHTML = videoTrack.enabled ? 
-                    '<i class="fas fa-video"></i>' : 
+                btn.innerHTML = videoTrack.enabled ?
+                    '<i class="fas fa-video"></i>' :
                     '<i class="fas fa-video-slash"></i>';
             }
         }
@@ -1088,13 +1627,24 @@
         async function toggleScreenShare() {
             if (!isSharingScreen) {
                 try {
-                    screenStream = await navigator.mediaDevices.getDisplayMedia({ 
+                    screenStream = await navigator.mediaDevices.getDisplayMedia({
                         video: { cursor: 'always' },
-                        audio: true 
+                        audio: true
                     });
                     isSharingScreen = true;
                     document.getElementById('screenShareBtn').classList.add('active');
                     
+                    // Replace video track in all peer connections
+                    const videoTrack = screenStream.getVideoTracks()[0];
+                    Object.values(peerConnections).forEach(pc => {
+                        const sender = pc.getSenders().find(s => 
+                            s.track && s.track.kind === 'video'
+                        );
+                        if (sender) {
+                            sender.replaceTrack(videoTrack);
+                        }
+                    });
+
                     screenStream.getTracks()[0].onended = stopScreenShare;
                     showSuccess('Screen sharing started');
                 } catch (error) {
@@ -1112,95 +1662,102 @@
             }
             isSharingScreen = false;
             document.getElementById('screenShareBtn').classList.remove('active');
+            
+            // Switch back to camera
+            if (localStream) {
+                const videoTrack = localStream.getVideoTracks()[0];
+                Object.values(peerConnections).forEach(pc => {
+                    const sender = pc.getSenders().find(s => 
+                        s.track && s.track.kind === 'video'
+                    );
+                    if (sender && videoTrack) {
+                        sender.replaceTrack(videoTrack);
+                    }
+                });
+            }
             showSuccess('Screen sharing stopped');
         }
 
-        function simulateRemoteVideo(userId) {
-            // Create a fake remote video stream for demo
-            const canvas = document.createElement('canvas');
-            canvas.width = 640;
-            canvas.height = 480;
-            const context = canvas.getContext('2d');
-            
-            // Animate the background
-            let hue = 0;
-            function animate() {
-                hue = (hue + 1) % 360;
-                const gradient = context.createLinearGradient(0, 0, canvas.width, canvas.height);
-                gradient.addColorStop(0, `hsl(${hue}, 70%, 60%)`);
-                gradient.addColorStop(1, `hsl(${hue + 60}, 70%, 60%)`);
-                context.fillStyle = gradient;
-                context.fillRect(0, 0, canvas.width, canvas.height);
-                
-                context.fillStyle = 'white';
-                context.font = '30px Arial';
-                context.textAlign = 'center';
-                context.fillText('Remote User Video', canvas.width/2, canvas.height/2);
-                
-                context.font = '16px Arial';
-                context.fillText('Demo Mode - Real WebRTC would show actual video', canvas.width/2, canvas.height/2 + 40);
-                
-                requestAnimationFrame(animate);
+        function copyUserId() {
+            if (!userUniqueId) {
+                showError('User ID not available');
+                return;
             }
-            animate();
-            
-            const stream = canvas.captureStream(30);
-            addRemoteVideo(userId, stream);
+            navigator.clipboard.writeText(userUniqueId).then(() => {
+                showSuccess('User ID copied to clipboard!');
+            }).catch(() => {
+                showError('Failed to copy user ID');
+            });
         }
 
-        function addRemoteVideo(peerId, stream) {
-            // Remove existing video if present
-            const existingVideo = document.getElementById(`remote-${peerId}`);
-            if (existingVideo) {
-                existingVideo.remove();
-            }
-            
-            const videoWrapper = document.createElement('div');
-            videoWrapper.className = 'video-wrapper remote';
-            videoWrapper.id = `remote-wrapper-${peerId}`;
-
-            const video = document.createElement('video');
-            video.id = `remote-${peerId}`;
-            video.autoplay = true;
-            video.playsinline = true;
-            video.srcObject = stream;
-
-            const label = document.createElement('div');
-            label.className = 'video-label';
-            label.textContent = 'Remote User';
-
-            videoWrapper.appendChild(video);
-            videoWrapper.appendChild(label);
-            videoContainer.appendChild(videoWrapper);
-        }
-
-        function showCallInterface() {
-            document.querySelector('.call-interface').style.display = 'flex';
-            updateUserStatus(true);
-        }
-
-        function hideCallInterface() {
-            document.querySelector('.call-interface').style.display = 'none';
-            updateUserStatus(false);
-            
-            // Remove all remote videos
-            const remoteVideos = document.querySelectorAll('.video-wrapper.remote');
-            remoteVideos.forEach(video => video.remove());
-        }
-
-        // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('VideoCall Pro initialized');
-            // Start periodic status updates
-            setInterval(() => {
-                if (currentUser && ws && ws.readyState === WebSocket.OPEN) {
-                    sendWebSocketMessage({
-                        type: 'ping',
-                        userId: currentUser.id,
-                        timestamp: Date.now()
-                    });
+        // Initialize auth state listener and check for existing session
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                console.log("Firebase auth state changed: user signed in", user.uid);
+                db.collection('users').doc(user.uid).get().then((doc) => {
+                    if (doc.exists) {
+                        const userData = doc.data();
+                        
+                        if (!userData.uniqueId) {
+                            console.log("User doesn't have uniqueId, generating one...");
+                            generateGuaranteedUniqueId().then(newUniqueId => {
+                                userUniqueId = newUniqueId;
+                                return db.collection('users').doc(user.uid).update({
+                                    uniqueId: userUniqueId
+                                });
+                            }).then(() => {
+                                currentUser = {
+                                    uid: user.uid,
+                                    username: userData.username,
+                                    email: user.email,
+                                    uniqueId: userUniqueId
+                                };
+                                saveUserSession(currentUser);
+                                showApp();
+                            }).catch(error => {
+                                console.error("Error generating unique ID:", error);
+                            });
+                        } else {
+                            userUniqueId = userData.uniqueId;
+                            currentUser = {
+                                uid: user.uid,
+                                username: userData.username,
+                                email: user.email,
+                                uniqueId: userUniqueId
+                            };
+                            saveUserSession(currentUser);
+                            showApp();
+                        }
+                    } else {
+                        console.error("User document not found in Firestore");
+                        logout();
+                    }
+                }).catch(error => {
+                    console.error("Error getting user document:", error);
+                    logout();
+                });
+            } else {
+                console.log("Firebase auth state changed: user signed out");
+                // Check for existing session in localStorage
+                const session = getUserSession();
+                if (isSessionValid(session)) {
+                    currentUser = session;
+                    userUniqueId = session.uniqueId;
+                    showApp();
+                    showSuccess('Welcome back! Your ID: ' + userUniqueId);
                 }
-            }, 30000); // Every 30 seconds
+            }
+        });
+
+        // Initialize app on load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("DOM loaded, checking for existing session");
+            const session = getUserSession();
+            if (isSessionValid(session)) {
+                currentUser = session;
+                userUniqueId = session.uniqueId;
+                showApp();
+            }
         });
     </script>
 </body>
